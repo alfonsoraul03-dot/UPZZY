@@ -34,6 +34,10 @@ export type ColorTokens = {
   oops: string;
   /** Text and icons drawn on a `text`-coloured fill (primary buttons). */
   onText: string;
+  /** Flat band laid over photos so text on them stays readable. */
+  photoScrim: string;
+  /** Text on top of a photo scrim. */
+  onPhoto: string;
 };
 
 export const colors: Record<'light' | 'dark', ColorTokens> = {
@@ -46,6 +50,8 @@ export const colors: Record<'light' | 'dark', ColorTokens> = {
     textMuted: palette.stoneGrey,
     oops: palette.oops,
     onText: palette.bone,
+    photoScrim: 'rgba(30, 29, 27, 0.7)',
+    onPhoto: palette.chalk,
   },
   dark: {
     background: palette.deepBlack,
@@ -55,6 +61,8 @@ export const colors: Record<'light' | 'dark', ColorTokens> = {
     textMuted: palette.dust,
     oops: palette.oops,
     onText: palette.washedBlack,
+    photoScrim: 'rgba(30, 29, 27, 0.7)',
+    onPhoto: palette.chalk,
   },
 };
 

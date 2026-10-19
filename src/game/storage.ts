@@ -7,8 +7,6 @@ import type { DailyResult } from './daily';
  * verified score: real rewards will need server-side checks.
  */
 export type Stats = {
-  best: number;
-  gamesPlayed: number;
   streak: number;
   lastDaily: string | null;
   daily: DailyResult | null;
@@ -16,7 +14,7 @@ export type Stats = {
 
 const KEY = 'upzzy.stats.v1';
 
-export const EMPTY_STATS: Stats = { best: 0, gamesPlayed: 0, streak: 0, lastDaily: null, daily: null };
+export const EMPTY_STATS: Stats = { streak: 0, lastDaily: null, daily: null };
 
 export async function loadStats(): Promise<Stats> {
   try {

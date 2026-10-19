@@ -42,6 +42,8 @@ export default function RootLayout() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="account" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

@@ -18,14 +18,19 @@ trap cleanup EXIT
 "${RUN_AS[@]}" "$PG_BIN/initdb" -D "$WORK/data" -U postgres --auth=trust >/dev/null
 "${RUN_AS[@]}" "$PG_BIN/pg_ctl" -D "$WORK/data" -o "-p $PORT -k $WORK -c listen_addresses=''" -l "$WORK/log" -w start >/dev/null
 
-PSQL=("${RUN_AS[@]}" "$PG_BIN/psql" -h "$WORK" -p "$PORT" -U postgres -d postgres -v ON_ERROR_STOP=1 -q)
+PSQL=("${RUN_AS[@]}" "$PG_BIN/psql" -h "$WORK" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 -q)
 
-"${PSQL[@]}" -f "$ROOT/supabase/tests/_auth_stub.sql"
+# Migrate one template database, then give every test file a fresh copy of it.
+"${PSQL[@]}" -d postgres -c "create database migrated"
+"${PSQL[@]}" -d migrated -f "$ROOT/supabase/tests/_auth_stub.sql"
 for migration in "$ROOT"/supabase/migrations/*.sql; do
   echo "migrate: $(basename "$migration")"
-  "${PSQL[@]}" -f "$migration"
+  "${PSQL[@]}" -d migrated -f "$migration"
 done
+n=0
 for test in "$ROOT"/supabase/tests/*.test.sql; do
+  n=$((n + 1))
   echo "test: $(basename "$test")"
-  "${PSQL[@]}" -o /dev/null -f "$test"
+  "${PSQL[@]}" -d postgres -c "create database test_$n template migrated"
+  "${PSQL[@]}" -d "test_$n" -o /dev/null -f "$test"
 done

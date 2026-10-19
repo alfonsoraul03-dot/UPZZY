@@ -39,6 +39,15 @@
             "image": "./assets/images/splash-icon.png"
           }
         }
+      ],
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "upzzy uses the camera to take the photo for today's challenge.",
+          "photosPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

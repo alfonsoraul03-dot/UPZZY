@@ -5,7 +5,8 @@
 ```
 Pantallas (src/app)          solo presentación y navegación
 Componentes (src/components) UI reutilizable y piezas de marca
-Lógica (src/lib)             cliente Supabase, configuración, validaciones
+Reglas (src/game, src/social) lógica pura con tests (juego, feed)
+Lógica (src/lib)             cliente Supabase, llamadas al backend, configuración
 Backend (supabase/)          Postgres + RLS + funciones SQL / Edge Functions
 ```
 
@@ -19,15 +20,26 @@ Backend (supabase/)          Postgres + RLS + funciones SQL / Edge Functions
 - `audit_log` es solo de añadir: un trigger bloquea `UPDATE`, `DELETE` y `TRUNCATE`.
 - Borrar una cuenta borra el perfil en cascada (requisito de App Store).
 
-## Esquema actual (Fase 1)
+## Esquema actual
 
 | Tabla | Para qué |
 | --- | --- |
 | `profiles` | Un perfil por usuario, creado al registrarse con un username provisional |
 | `user_roles` | Roles de staff: `admin`, `moderator` |
 | `audit_log` | Historial inmutable de acciones sensibles |
+| `challenges` | Un challenge por día (hora de Madrid), con premio opcional |
+| `challenge_prompts` | Lista de challenges para los días que nadie programó |
+| `posts` | La foto de cada persona en el challenge del día (máximo una) |
+| `post_likes` | Likes; el contador lo lleva un trigger, no el móvil |
+| `follows` | A quién sigues; el feed "friends" sale de aquí |
+| `post_reports` | Reportes; con 3 la foto se oculta sola y se registra |
+| `user_blocks` | Personas bloqueadas; sus fotos desaparecen de tu feed |
 
-Las siguientes tablas se añaden en su fase, cada una con su migración y sus tests: challenges y submissions (3), posts y friendships (4), drops y claims (5), competitions y score_adjustments (6), meetups, conversations y messages (7), orders y founder_allocations (8), designs y commissions (9).
+Fotos: bucket privado `oops` (máx. 5 MB, solo JPEG). Cada usuario solo sube a su carpeta, y una foto solo se puede ver si su post es visible. El feed pide enlaces temporales (1 hora).
+
+Reglas que comprueba el servidor (`submit_post`): que el challenge sea el de hoy, que la foto esté subida en tu carpeta y que no hayas publicado ya hoy. La app solo abre la cámara (nunca la galería), pero el servidor no puede demostrar que una foto es nueva ni que lleva ropa UPZZY: cualquier premio necesita revisión humana.
+
+Las siguientes tablas se añaden en su paso: racha de 100 días con premio validada en el servidor, comentarios, competición mensual, First 100, drops con reservas, Creator Club.
 
 ## Tests de base de datos
 

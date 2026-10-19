@@ -32,3 +32,13 @@ it('computes known ratios', () => {
   expect(contrastRatio('#777777', '#777777')).toBeCloseTo(1, 5);
   expect(() => contrastRatio('red', '#fff')).toThrow();
 });
+
+it('text on the photo scrim stays readable even over a white photo', () => {
+  for (const scheme of ['light', 'dark'] as const) {
+    const { photoScrim, onPhoto } = colors[scheme];
+    const [r, g, b, a] = photoScrim.match(/[\d.]+/g)!.map(Number);
+    const over = (c: number) => Math.round(c * a + 255 * (1 - a));
+    const hex = '#' + [r, g, b].map((c) => over(c).toString(16).padStart(2, '0')).join('');
+    expect(contrastRatio(onPhoto, hex)).toBeGreaterThanOrEqual(4.5);
+  }
+});
