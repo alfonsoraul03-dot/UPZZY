@@ -55,10 +55,12 @@ La pestaña **today** funciona sin backend ni conexión. La pestaña **oops** (c
    npx supabase link --project-ref TU_PROJECT_REF   # el ref es la parte de la URL antes de .supabase.co
    npx supabase db push
    ```
-5. Para que el login funcione con un **código** (sin contraseñas ni enlaces), ve a **Authentication → Emails (Templates)** y en las plantillas **Confirm signup** y **Magic Link** añade esta línea al texto:
+5. Para que el enlace del email abra la app, ve a **Authentication → URL Configuration → Redirect URLs** y añade estas dos (botón **Add URL**):
    ```
-   tu código: {{ .Token }}
+   exp://**
+   upzzy://**
    ```
+   La primera es para probar con Expo Go; la segunda, para la app publicada. Abre el email **en el móvil** y toca el enlace: se abre la app y ya estás dentro.
 6. Reinicia Expo con `npx expo start --clear` para que lea el `.env`.
 7. Para hacerte administrador, regístrate en la app y luego abre **SQL Editor** en Supabase y ejecuta:
    ```sql

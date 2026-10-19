@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, Field, Sheet, Text } from '@/components/ui';
+import { useAuthLinks } from '@/hooks/useAuthLinks';
 import { useSession } from '@/hooks/useSession';
 import { deleteAccount, friendlyError, getMyProfile, sendLoginCode, setUsername, signOut, verifyLoginCode } from '@/lib/social';
 import { isEmail, isLoginCode, isPlaceholderUsername } from '@/social/rules';
@@ -12,6 +13,7 @@ import { space } from '@/theme';
 /** Sign in with an emailed code, pick a name, sign out or delete the account. */
 export default function AccountScreen() {
   const { userId, ready, configured } = useSession();
+  const linkProblem = useAuthLinks();
 
   if (!configured) {
     return (
@@ -22,10 +24,10 @@ export default function AccountScreen() {
     );
   }
   if (!ready) return <Sheet title="you">{null}</Sheet>;
-  return userId ? <SignedIn userId={userId} /> : <SignIn />;
+  return userId ? <SignedIn userId={userId} /> : <SignIn linkProblem={linkProblem} />;
 }
 
-function SignIn() {
+function SignIn({ linkProblem }: { linkProblem: string | null }) {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [step, setStep] = useState<'email' | 'code'>('email');
@@ -79,7 +81,7 @@ function SignIn() {
       ) : (
         <>
           <Text variant="title">check your email.</Text>
-          <Text color="textMuted">type the code we sent to {email.trim()}.</Text>
+          <Text color="textMuted">open it on this phone and tap the link. if it has a code, type it here.</Text>
           <Field
             value={code}
             onChangeText={(v) => setCode(v.replace(/\D/g, ''))}
@@ -103,7 +105,7 @@ function SignIn() {
           />
         </>
       )}
-      {error ? <Text color="textMuted">{error}</Text> : null}
+      {error || linkProblem ? <Text color="textMuted">{error ?? linkProblem}</Text> : null}
     </Sheet>
   );
 }

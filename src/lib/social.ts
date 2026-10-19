@@ -1,9 +1,11 @@
 import { File, Paths } from 'expo-file-system';
+import * as Linking from 'expo-linking';
 import * as Sharing from 'expo-sharing';
 import { Platform, Share } from 'react-native';
 
 import { normalizeCaption, photoPath, type FeedPost, type FeedScope } from '@/social/rules';
 
+import { parseAuthLink } from './authLink';
 import { supabase } from './supabase';
 
 /**
@@ -148,13 +150,30 @@ export async function setUsername(me: string, username: string): Promise<void> {
 }
 
 export async function sendLoginCode(email: string): Promise<void> {
-  const { error } = await client().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: true } });
+  // The email has a link back into the app and, if the template includes it, a code.
+  const { error } = await client().auth.signInWithOtp({
+    email: email.trim().toLowerCase(),
+    options: { shouldCreateUser: true, emailRedirectTo: Linking.createURL('/account') },
+  });
   if (error) throw error;
 }
 
 export async function verifyLoginCode(email: string, code: string): Promise<void> {
   const { error } = await client().auth.verifyOtp({ email: email.trim().toLowerCase(), token: code.trim(), type: 'email' });
   if (error) throw error;
+}
+
+/** Signs in from the email link once it opens the app. Returns false for links that are not sign-in links. */
+export async function completeAuthLink(url: string): Promise<boolean> {
+  const link = parseAuthLink(url);
+  if (!link || !supabase) return false;
+  if (link.kind === 'error') throw new Error(link.message);
+  const { error } =
+    link.kind === 'tokens'
+      ? await supabase.auth.setSession({ access_token: link.accessToken, refresh_token: link.refreshToken })
+      : await supabase.auth.exchangeCodeForSession(link.code);
+  if (error) throw error;
+  return true;
 }
 
 export async function signOut(): Promise<void> {
