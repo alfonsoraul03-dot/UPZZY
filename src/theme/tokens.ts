@@ -1,96 +1,60 @@
 /**
- * UPZZY design tokens.
+ * UPZZY design tokens, from the brand DNA: calm, clean, minimal, with one
+ * deliberate mistake. Oops Orange is ONLY used to mark the mistake (the
+ * slipped Z, the shape you found, a lost life). Never for buttons or chrome.
  *
- * Raw palette values live in `palette`. Screens and components must only use
- * the semantic `ColorTokens` returned by `useTheme()`, so that light and dark
- * mode (and any future brand refresh) only require changes in this file.
+ * Screens use the semantic `ColorTokens` from `useTheme()`, never `palette`.
  */
 
 export const palette = {
-  ink: '#0E0E0E',
-  carbon: '#171717',
-  graphite: '#242424',
-  steel: '#3A3A38',
-  smoke: '#8C8A84',
-  ash: '#5C5B57',
-  stone: '#D9D5CC',
-  bone: '#F2EFE8',
-  paper: '#FFFFFF',
-  signal: '#FF5A1F',
-  signalDeep: '#C2410C',
-  brass: '#C8A45A',
-  brassDeep: '#8A6A22',
-  go: '#3DBE7A',
-  goDeep: '#1F7A4B',
-  stop: '#F0565B',
-  stopDeep: '#C42B30',
+  bone: '#ECE6D8',
+  chalk: '#F2F0EA',
+  oatmeal: '#D9CDB8',
+  washedBlack: '#2E2C2A',
+  deepBlack: '#1E1D1B',
+  slate: '#5E6873',
+  stoneGrey: '#6B665E',
+  dust: '#A39D92',
+  skyWash: '#A9C1D3',
+  navyWash: '#2F3A4C',
+  butter: '#EAD9A2',
+  moss: '#6E7559',
+  oops: '#E4572E',
 } as const;
 
 export type ColorTokens = {
-  /** Screen background. */
   background: string;
-  /** Raised surfaces: sheets, rows, inputs. */
+  /** Slightly raised areas: the game board, cards. */
   surface: string;
-  /** Surfaces on top of `surface`, pressed states. */
-  surfaceStrong: string;
-  /** Hairlines and outlines. */
   border: string;
+  /** Main thread colour: text, shapes, primary buttons. */
   text: string;
-  textSecondary: string;
   textMuted: string;
-  /** Brand accent: live states, primary actions, highlights. */
-  accent: string;
-  /** Text drawn on top of `accent`. */
-  onAccent: string;
-  /** Accent used as text on `background` (meets AA contrast). */
-  accentText: string;
-  /** First 100 founders. */
-  founder: string;
-  success: string;
-  danger: string;
-  /** Inverted block (e.g. black on bone in light mode). */
-  inverse: string;
-  onInverse: string;
-  /** Accent used as text on `inverse`. */
-  accentOnInverse: string;
+  /** Oops Orange. Only for the mistake. */
+  oops: string;
+  /** Text and icons drawn on a `text`-coloured fill (primary buttons). */
+  onText: string;
 };
 
 export const colors: Record<'light' | 'dark', ColorTokens> = {
-  dark: {
-    background: palette.ink,
-    surface: palette.carbon,
-    surfaceStrong: palette.graphite,
-    border: palette.steel,
-    text: palette.bone,
-    textSecondary: palette.stone,
-    textMuted: palette.smoke,
-    accent: palette.signal,
-    onAccent: palette.ink,
-    accentText: palette.signal,
-    founder: palette.brass,
-    success: palette.go,
-    danger: palette.stop,
-    inverse: palette.bone,
-    onInverse: palette.ink,
-    accentOnInverse: palette.signalDeep,
-  },
+  // Chalk rather than Bone as the page so Oops Orange keeps 3:1 contrast.
   light: {
-    background: palette.bone,
-    surface: palette.paper,
-    surfaceStrong: palette.stone,
-    border: palette.stone,
-    text: palette.ink,
-    textSecondary: palette.steel,
-    textMuted: palette.ash,
-    accent: palette.signal,
-    onAccent: palette.ink,
-    accentText: palette.signalDeep,
-    founder: palette.brassDeep,
-    success: palette.goDeep,
-    danger: palette.stopDeep,
-    inverse: palette.ink,
-    onInverse: palette.bone,
-    accentOnInverse: palette.signal,
+    background: palette.chalk,
+    surface: '#FAF8F3',
+    border: palette.oatmeal,
+    text: palette.washedBlack,
+    textMuted: palette.stoneGrey,
+    oops: palette.oops,
+    onText: palette.bone,
+  },
+  dark: {
+    background: palette.deepBlack,
+    surface: palette.washedBlack,
+    border: '#45423E',
+    text: palette.bone,
+    textMuted: palette.dust,
+    oops: palette.oops,
+    onText: palette.washedBlack,
   },
 };
 
@@ -107,18 +71,18 @@ export const space = {
   huge: 64,
 } as const;
 
-/** Mostly square: streetwear tags and labels, not soft app cards. */
 export const radius = {
   none: 0,
   sm: 2,
-  md: 4,
+  md: 6,
   pill: 999,
 } as const;
 
 /** Font family names, registered in `src/app/_layout.tsx`. */
 export const fonts = {
+  /** Bold, wide capitals: the logo and big numbers only. */
   display: 'Archivo_900Black',
-  displayBold: 'Archivo_800ExtraBold',
+  /** Small, quiet lowercase for everything else. */
   body: 'Inter_400Regular',
   bodyMedium: 'Inter_500Medium',
   bodySemiBold: 'Inter_600SemiBold',
@@ -126,20 +90,19 @@ export const fonts = {
 } as const;
 
 export const type = {
-  display: { fontFamily: fonts.display, fontSize: 56, lineHeight: 54, letterSpacing: -1.5, textTransform: 'uppercase' },
-  h1: { fontFamily: fonts.display, fontSize: 36, lineHeight: 36, letterSpacing: -0.8, textTransform: 'uppercase' },
-  h2: { fontFamily: fonts.displayBold, fontSize: 24, lineHeight: 26, letterSpacing: -0.3, textTransform: 'uppercase' },
-  title: { fontFamily: fonts.bodySemiBold, fontSize: 17, lineHeight: 22 },
-  body: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22 },
-  bodyStrong: { fontFamily: fonts.bodyMedium, fontSize: 15, lineHeight: 22 },
+  /** Big numbers: scores, streaks. */
+  number: { fontFamily: fonts.display, fontSize: 64, lineHeight: 64, letterSpacing: -1 },
+  title: { fontFamily: fonts.bodySemiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.3 },
+  body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 23 },
+  bodyStrong: { fontFamily: fonts.bodyMedium, fontSize: 16, lineHeight: 23 },
   caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
-  label: { fontFamily: fonts.mono, fontSize: 11, lineHeight: 14, letterSpacing: 1.2, textTransform: 'uppercase' },
+  label: { fontFamily: fonts.mono, fontSize: 11, lineHeight: 14, letterSpacing: 1 },
 } as const;
 
 export type TypeVariant = keyof typeof type;
 
 export const layout = {
-  gutter: space.lg,
-  maxContentWidth: 720,
-  tabBarHeight: 64,
+  gutter: space.xl,
+  maxContentWidth: 560,
+  tabBarHeight: 60,
 } as const;

@@ -43,8 +43,8 @@ Docs: https://docs.expo.dev/eas/index.md
 ## UPZZY project rules
 
 - Read `docs/PLAN.md` (phases and status), `docs/ARCHITECTURE.md` and `docs/BRAND.md` before changing features.
-- UI uses only tokens from `src/theme` via `useTheme()`; no raw colors in screens. Icons go in `src/components/brand/icons.tsx`.
-- No fake data, fake success states or buttons that do nothing. Unbuilt features render an `EmptyState` naming their phase.
+- UI uses only tokens from `src/theme` via `useTheme()`; no raw colors in screens. Oops Orange (`theme.oops`) only marks the mistake, never buttons or chrome. Copy is short, dry lowercase.
+- Keep the app simple: three tabs (today, play, drop). No fake data, fake success states or buttons that do nothing. Game logic lives in `src/game/` with tests.
 - Every business rule that matters (prizes, founders, scoring, commissions, roles) is enforced in Postgres/RLS or server functions, never only in the client, and sensitive actions write to `audit_log`.
 - Each migration ships with tests in `supabase/tests/*.test.sql`. Run `npm run check` and `npm run test:db` before declaring work done.
 - In this cloud environment the Expo API is blocked: run `npx expo install` with `EXPO_OFFLINE=1`.

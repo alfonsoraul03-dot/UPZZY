@@ -1,22 +1,18 @@
 import { contrastRatio } from '@/theme/contrast';
 import { colors, type ColorTokens } from '@/theme/tokens';
 
-// WCAG AA: 4.5:1 for body text, 3:1 for large text and UI shapes.
+// WCAG AA: 4.5:1 for body text, 3:1 for large text and graphics.
 const TEXT_PAIRS: [keyof ColorTokens, keyof ColorTokens][] = [
   ['text', 'background'],
   ['text', 'surface'],
-  ['textSecondary', 'background'],
-  ['textSecondary', 'surface'],
   ['textMuted', 'background'],
-  ['accentText', 'background'],
-  ['onAccent', 'accent'],
-  ['onInverse', 'inverse'],
-  ['accentOnInverse', 'inverse'],
+  ['textMuted', 'surface'],
+  ['onText', 'text'],
 ];
-const UI_PAIRS: [keyof ColorTokens, keyof ColorTokens][] = [
-  ['founder', 'background'],
-  ['success', 'background'],
-  ['danger', 'background'],
+// Oops Orange marks shapes and glyphs, never body text, so it needs 3:1.
+const GRAPHIC_PAIRS: [keyof ColorTokens, keyof ColorTokens][] = [
+  ['oops', 'background'],
+  ['oops', 'surface'],
 ];
 
 describe.each(['light', 'dark'] as const)('%s theme', (scheme) => {
@@ -26,7 +22,7 @@ describe.each(['light', 'dark'] as const)('%s theme', (scheme) => {
     expect(contrastRatio(theme[fg], theme[bg])).toBeGreaterThanOrEqual(4.5);
   });
 
-  it.each(UI_PAIRS)('%s on %s meets AA for UI elements', (fg, bg) => {
+  it.each(GRAPHIC_PAIRS)('%s on %s meets AA for graphics', (fg, bg) => {
     expect(contrastRatio(theme[fg], theme[bg])).toBeGreaterThanOrEqual(3);
   });
 });

@@ -4,10 +4,11 @@ import { colors, type ColorTokens } from './tokens';
 
 export * from './tokens';
 
+/** Light (Bone) is the brand default; dark mode follows the phone setting. */
 export function useTheme(): ColorTokens {
-  return colors[useColorScheme() === 'light' ? 'light' : 'dark'];
+  return colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
 }
 
 export function useIsDark(): boolean {
-  return useColorScheme() !== 'light';
+  return useColorScheme() === 'dark';
 }

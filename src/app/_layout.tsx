@@ -1,4 +1,3 @@
-import { Archivo_800ExtraBold } from '@expo-google-fonts/archivo/800ExtraBold';
 import { Archivo_900Black } from '@expo-google-fonts/archivo/900Black';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
@@ -18,7 +17,6 @@ export default function RootLayout() {
   const theme = useTheme();
   const isDark = useIsDark();
   const [fontsLoaded, fontError] = useFonts({
-    Archivo_800ExtraBold,
     Archivo_900Black,
     Inter_400Regular,
     Inter_500Medium,
@@ -36,7 +34,7 @@ export default function RootLayout() {
   const base = isDark ? DarkTheme : DefaultTheme;
   const navTheme = {
     ...base,
-    colors: { ...base.colors, background: theme.background, card: theme.background, text: theme.text, border: theme.border, primary: theme.accent },
+    colors: { ...base.colors, background: theme.background, card: theme.background, text: theme.text, border: theme.border, primary: theme.text },
   };
 
   return (
@@ -44,7 +42,6 @@ export default function RootLayout() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="store" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

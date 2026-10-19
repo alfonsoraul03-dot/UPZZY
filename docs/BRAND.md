@@ -1,35 +1,28 @@
-# UPZZY: sistema visual
+# UPZZY: marca en la app
 
-La idea: **etiqueta de ropa + cartel de calle.** Tipografía negra y ancha, mucho contraste, esquinas casi rectas y un solo color de acento. Nada de degradados ni tarjetas redondeadas genéricas.
+**happened by mistake. stayed on purpose.**
 
-## Logo
+UPZZY viene de "oopsie". Todo es tranquilo, limpio y mínimo, con UN error deliberado. El error es la firma.
 
-- **Marca:** un bloque sólido (como una etiqueta) con una flecha hacia arriba recortada. "UP" de UPZZY, subir, ir a más. Archivos: `assets/brand/upzzy-mark.svg` y `upzzy-mark-light.svg`.
-- **Wordmark:** UPZZY en Archivo Black. Componente `Logo` en `src/components/brand/Logo.tsx`.
-- Es una propuesta de trabajo. Si ya tienes logo, se sustituye en esos dos sitios y en `assets/images/`.
+## Reglas en la app
 
-## Color
+- **Oops Orange `#E4572E` solo marca el error:** la segunda Z del logo, la forma que encuentras en el juego, una vida perdida, una ronda fallada. Nunca en botones ni en la navegación.
+- **Un solo gesto por pantalla:** la Z que se cae (slip), el contorno movido (misregistration), la forma fuera de línea, la letra al revés (wrong side).
+- **Texto:** minúsculas, corto y seco. "oops.", "nope. keep looking.", "no undo.", "new best. on purpose."
+- **Tipografía:** Archivo Black en mayúsculas solo para el logo y los números grandes. Inter en minúsculas para todo lo demás.
+- **Formas:** círculos, cuadrados, barras, puntos y letras sueltas. Sin ilustraciones, fotos, degradados ni texturas.
+- **Mucho espacio vacío.**
 
-| Token | Oscuro | Claro | Uso |
-| --- | --- | --- | --- |
-| Ink | `#0E0E0E` | texto | Fondo principal en oscuro |
-| Bone | texto | `#F2EFE8` | Fondo principal en claro, color "algodón crudo" |
-| Signal | `#FF5A1F` | `#FF5A1F` | Único acento: acciones, Drops en directo, pestaña activa |
-| Signal Deep | | `#C2410C` | Acento como texto sobre fondos claros (contraste AA) |
-| Brass | `#C8A45A` | `#8A6A22` | Exclusivo de First 100 Founders |
+## Colores
 
-Todos los pares texto/fondo pasan WCAG AA; lo comprueba `src/__tests__/contrast.test.ts`.
+| Token | Claro | Oscuro |
+| --- | --- | --- |
+| Fondo | Chalk `#F2F0EA` | `#1E1D1B` |
+| Hilo principal (texto, formas, botones) | Washed Black `#2E2C2A` | Bone `#ECE6D8` |
+| Oops | `#E4572E` | `#E4572E` |
 
-## Tipografía
+El fondo claro es Chalk y no Bone porque el naranja sobre Bone baja de 3:1 de contraste. Lo comprueba `src/__tests__/contrast.test.ts`.
 
-- **Archivo Black / ExtraBold:** titulares en mayúsculas, interlineado apretado.
-- **Inter:** texto y botones de lectura.
-- **JetBrains Mono:** etiquetas, numeración (01, 02…), fases, contadores. Da el toque de "etiqueta de prenda".
+## Secreto
 
-## Reglas
-
-- Las pantallas usan solo `useTheme()` y los tokens de `src/theme/tokens.ts`, nunca colores sueltos.
-- Secciones numeradas con una línea gruesa encima (`Section`).
-- Estados vacíos con borde discontinuo (`EmptyState`): dicen la verdad sobre lo que falta.
-- Iconos propios en `src/components/brand/icons.tsx`: rejilla de 24 px, trazo 1.75, esquinas rectas.
-- Fotografía (cuando llegue): luz natural, gente real, ciudad y viaje, con la prenda visible. Sin bancos de imágenes genéricos.
+Mantén pulsado el logo: la Z se cae un poco más.

@@ -1,8 +1,8 @@
 # UPZZY
 
-**Wear it. Live it. Be part of it.**
+**happened by mistake. stayed on purpose.**
 
-App móvil (iOS y Android) de la marca de streetwear UPZZY: challenges de fotos con la cámara de la app, Drops de camisetas gratis, comunidad, First 100 Founders, Creator Club, meetups y tienda.
+App móvil (iOS y Android) de UPZZY: un juego diario de encontrar el error (*daily oops*), un modo infinito y el drop actual de la marca.
 
 - Plan por fases: [docs/PLAN.md](docs/PLAN.md)
 - Sistema visual de la marca: [docs/BRAND.md](docs/BRAND.md)
@@ -36,9 +36,9 @@ Necesitas [Node.js](https://nodejs.org) 20 o superior (compruébalo con `node -v
    - Si no conecta, para el servidor con `Ctrl+C` y prueba `npx expo start --tunnel`.
 5. Para verla en el navegador del Mac pulsa `w` en la terminal.
 
-La app funciona sin backend: la pestaña **Profile** te dice si Supabase está conectado.
+La app funciona sin backend ni conexión.
 
-## Conectar Supabase (cuando quieras, obligatorio para la Fase 2)
+## Conectar Supabase (solo para cuentas y ranking, más adelante)
 
 1. Crea una cuenta en [supabase.com](https://supabase.com) y un proyecto nuevo llamado `upzzy`. Elige la región más cercana a tus usuarios (por ejemplo, West EU). Guarda la contraseña de la base de datos en un lugar seguro.
 2. En el panel del proyecto ve a **Project Settings → API** y copia:
@@ -55,8 +55,7 @@ La app funciona sin backend: la pestaña **Profile** te dice si Supabase está c
    npx supabase link --project-ref TU_PROJECT_REF   # el ref es la parte de la URL antes de .supabase.co
    npx supabase db push
    ```
-5. Reinicia `npx expo start`. En **Profile** debería aparecer *Connected to Supabase*.
-6. Para hacerte administrador, abre **SQL Editor** en Supabase después de registrarte en la app (Fase 2) y ejecuta:
+6. Para hacerte administrador, abre **SQL Editor** en Supabase después de registrarte en la app y ejecuta:
    ```sql
    insert into public.user_roles (user_id, role)
    select id, 'admin' from auth.users where email = 'TU_EMAIL';
@@ -74,9 +73,9 @@ npm run test:db     # aplica las migraciones a un Postgres temporal y prueba la 
 
 ```
 src/app/            pantallas (Expo Router)
-  (tabs)/           Home, Challenges, Create, Community, Profile
-  store.tsx         tienda (se abre desde el botón Store de cada pantalla)
-src/components/     componentes de interfaz y de marca
+  (tabs)/           today (daily oops), play (modo infinito), drop
+src/game/           lógica del juego (niveles, daily, rachas), con tests
+src/components/     tablero, logo y componentes de interfaz
 src/theme/          colores, tipografía y espaciado (design tokens)
 src/lib/            Supabase, configuración y validaciones
 supabase/           migraciones SQL y tests de base de datos

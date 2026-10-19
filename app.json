@@ -15,7 +15,7 @@
     "android": {
       "package": "com.upzzy.app",
       "adaptiveIcon": {
-        "backgroundColor": "#0E0E0E",
+        "backgroundColor": "#F2F0EA",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -31,9 +31,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0E0E0E",
+          "backgroundColor": "#F2F0EA",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 120
+          "imageWidth": 120,
+          "dark": {
+            "backgroundColor": "#1E1D1B",
+            "image": "./assets/images/splash-icon.png"
+          }
         }
       ]
     ],
@@ -41,6 +45,6 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "backgroundColor": "#0E0E0E"
+    "backgroundColor": "#F2F0EA"
   }
 }
