@@ -93,20 +93,22 @@ function Mark({ level, item, cell, oops }: { level: Level; item: Item; cell: num
     );
   }
 
-  const box = size + stroke * 2;
+  // Leave room around the shape so outlines are never clipped by the SVG box.
+  const box = size + stroke * 4;
+  const inset = (box - size) / 2;
   const solid =
     level.shape === 'square' ? (
-      <Rect x={stroke} y={stroke} width={size} height={size} fill={fill} />
+      <Rect x={inset} y={inset} width={size} height={size} fill={fill} />
     ) : level.shape === 'bar' ? (
-      <Rect x={stroke} y={stroke + size * 0.38} width={size} height={size * 0.24} fill={fill} />
+      <Rect x={inset} y={inset + size * 0.38} width={size} height={size * 0.24} fill={fill} />
     ) : (
       <Circle cx={box / 2} cy={box / 2} r={size / 2} fill={fill} />
     );
   const ring =
     level.shape === 'square' ? (
-      <Rect x={stroke / 2} y={stroke / 2} width={size + stroke} height={size + stroke} fill="none" stroke={outline} strokeWidth={stroke} />
+      <Rect x={inset - stroke / 2} y={inset - stroke / 2} width={size + stroke} height={size + stroke} fill="none" stroke={outline} strokeWidth={stroke} />
     ) : (
-      <Circle cx={box / 2} cy={box / 2} r={size / 2 + stroke / 2} fill="none" stroke={outline} strokeWidth={stroke} />
+      <Circle cx={box / 2} cy={box / 2} r={size / 2 + stroke / 2 - 0.75} fill="none" stroke={outline} strokeWidth={stroke} />
     );
 
   return (
