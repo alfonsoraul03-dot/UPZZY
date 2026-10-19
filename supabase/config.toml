@@ -1,0 +1,13 @@
+# Supabase CLI project configuration. Run `npx supabase link` to connect this
+# folder to your hosted project, then `npx supabase db push` to apply migrations.
+project_id = "upzzy"
+
+[api]
+schemas = ["public"]
+
+[db]
+major_version = 17
+
+[auth]
+site_url = "upzzy://"
+enable_signup = true

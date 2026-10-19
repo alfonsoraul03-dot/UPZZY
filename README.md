@@ -1,56 +1,84 @@
-# Welcome to your Expo app 👋
+# UPZZY
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Wear it. Live it. Be part of it.**
 
-## Get started
+App móvil (iOS y Android) de la marca de streetwear UPZZY: challenges de fotos con la cámara de la app, Drops de camisetas gratis, comunidad, First 100 Founders, Creator Club, meetups y tienda.
 
-1. Install dependencies
+- Plan por fases: [docs/PLAN.md](docs/PLAN.md)
+- Sistema visual de la marca: [docs/BRAND.md](docs/BRAND.md)
+- Arquitectura y seguridad: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
+## Tecnología
+
+| Parte | Qué usamos | Por qué |
+| --- | --- | --- |
+| App | Expo (SDK 58) + React Native + TypeScript | Una sola base de código para iPhone y Android, y puedes probarla en tu móvil al instante con Expo Go. |
+| Navegación | Expo Router | Cada archivo en `src/app/` es una pantalla. |
+| Backend | Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) | Base de datos real con seguridad por filas (RLS), login, fotos y chat en tiempo real. |
+| Builds | EAS Build | Genera las apps para App Store y Google Play en la nube, sin Xcode. |
+
+## Probar la app en tu Mac y en tu móvil
+
+Necesitas [Node.js](https://nodejs.org) 20 o superior (compruébalo con `node -v`).
+
+1. Descarga el código:
    ```bash
+   git clone https://github.com/alfonsoraul03-dot/upzzy.git
+   cd upzzy
    npm install
    ```
-
-2. Start the app
-
+2. Arranca el servidor de desarrollo:
    ```bash
    npx expo start
    ```
+3. En tu iPhone o Android instala **Expo Go** desde la App Store o Google Play.
+4. Escanea el código QR que aparece en la terminal (con la cámara en iPhone, o desde Expo Go en Android). El móvil y el Mac tienen que estar en la misma red wifi.
+   - Si no conecta, para el servidor con `Ctrl+C` y prueba `npx expo start --tunnel`.
+5. Para verla en el navegador del Mac pulsa `w` en la terminal.
 
-In the output, you'll find options to open the app in a
+La app funciona sin backend: la pestaña **Profile** te dice si Supabase está conectado.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Conectar Supabase (cuando quieras, obligatorio para la Fase 2)
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. Crea una cuenta en [supabase.com](https://supabase.com) y un proyecto nuevo llamado `upzzy`. Elige la región más cercana a tus usuarios (por ejemplo, West EU). Guarda la contraseña de la base de datos en un lugar seguro.
+2. En el panel del proyecto ve a **Project Settings → API** y copia:
+   - **Project URL**
+   - **anon / publishable key** (nunca la `service_role` o `secret`).
+3. En la carpeta del proyecto:
+   ```bash
+   cp .env.example .env
+   ```
+   Abre `.env` y pega los dos valores.
+4. Aplica el esquema de base de datos:
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref TU_PROJECT_REF   # el ref es la parte de la URL antes de .supabase.co
+   npx supabase db push
+   ```
+5. Reinicia `npx expo start`. En **Profile** debería aparecer *Connected to Supabase*.
+6. Para hacerte administrador, abre **SQL Editor** en Supabase después de registrarte en la app (Fase 2) y ejecuta:
+   ```sql
+   insert into public.user_roles (user_id, role)
+   select id, 'admin' from auth.users where email = 'TU_EMAIL';
+   ```
 
-## Get a fresh project
-
-When you're ready, run:
+## Comprobaciones
 
 ```bash
-npm run reset-project
+npm run typecheck   # TypeScript
+npm test            # tests de la app (Jest)
+npm run test:db     # aplica las migraciones a un Postgres temporal y prueba la seguridad (necesita PostgreSQL instalado)
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Estructura
 
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+src/app/            pantallas (Expo Router)
+  (tabs)/           Home, Challenges, Create, Community, Profile
+  store.tsx         tienda (se abre desde el botón Store de cada pantalla)
+src/components/     componentes de interfaz y de marca
+src/theme/          colores, tipografía y espaciado (design tokens)
+src/lib/            Supabase, configuración y validaciones
+supabase/           migraciones SQL y tests de base de datos
+assets/brand/       logo en SVG
+```

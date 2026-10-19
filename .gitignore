@@ -41,3 +41,10 @@ example
 # generated native folders
 /ios
 /android
+
+# UPZZY: never commit real credentials
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/

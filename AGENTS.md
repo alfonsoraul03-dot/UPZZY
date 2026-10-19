@@ -39,3 +39,12 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## UPZZY project rules
+
+- Read `docs/PLAN.md` (phases and status), `docs/ARCHITECTURE.md` and `docs/BRAND.md` before changing features.
+- UI uses only tokens from `src/theme` via `useTheme()`; no raw colors in screens. Icons go in `src/components/brand/icons.tsx`.
+- No fake data, fake success states or buttons that do nothing. Unbuilt features render an `EmptyState` naming their phase.
+- Every business rule that matters (prizes, founders, scoring, commissions, roles) is enforced in Postgres/RLS or server functions, never only in the client, and sensitive actions write to `audit_log`.
+- Each migration ships with tests in `supabase/tests/*.test.sql`. Run `npm run check` and `npm run test:db` before declaring work done.
+- In this cloud environment the Expo API is blocked: run `npx expo install` with `EXPO_OFFLINE=1`.
