@@ -17,7 +17,7 @@ export const TABS: Record<string, TabConfig> = {
   profile: { label: 'Profile', Icon: ProfileIcon },
 };
 
-export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
+export function TabBar({ state, navigation }: BottomTabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -35,8 +35,8 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
         const color = focused ? theme.text : theme.textMuted;
 
         const onPress = () => {
-          const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-          if (!focused && !event.defaultPrevented) navigateToTab(route.key);
+          const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+          if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
         };
 
         return (
