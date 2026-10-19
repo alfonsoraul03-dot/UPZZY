@@ -3,7 +3,7 @@ import * as Linking from 'expo-linking';
 import * as Sharing from 'expo-sharing';
 import { Platform, Share } from 'react-native';
 
-import { normalizeCaption, photoPath, type FeedPost, type FeedScope } from '@/social/rules';
+import { normalizeCaption, photoPath, reactionPath, type FeedPost, type FeedScope } from '@/social/rules';
 
 import { parseAuthLink } from './authLink';
 import { supabase } from './supabase';
@@ -16,10 +16,32 @@ import { supabase } from './supabase';
 export type Challenge = {
   id: string;
   day: string;
+  opens_at: string;
   title: string;
   description: string | null;
   reward: string | null;
 };
+
+/** Today's challenge, or just `{ is_open: false }` while it is still a secret. */
+export type Today = ({ is_open: true } & Challenge) | { is_open: false; day: string };
+
+export type UserStats = {
+  username: string | null;
+  streak: number;
+  month_points: number;
+  total_points: number;
+  posts: number;
+  following: boolean;
+};
+
+export type ProfilePost = {
+  id: string;
+  image_path: string;
+  points: number;
+  challenges: { day: string; title: string } | null;
+};
+
+export type RankRow = { rank: number; user_id: string; username: string | null; points: number; posts: number };
 
 export type Profile = { id: string; username: string };
 
@@ -43,11 +65,19 @@ export function friendlyError(error: unknown): string {
   return "didn't go through. try again.";
 }
 
-export async function getTodayChallenge(): Promise<Challenge | null> {
+export async function getToday(): Promise<Today | null> {
   const { data, error } = await client().rpc('today_challenge');
   if (error) throw error;
-  const row = data as Challenge | null;
-  return row?.id ? row : null;
+  const row = (data as (Challenge & { is_open: boolean })[] | null)?.[0];
+  if (!row) return null;
+  return row.is_open ? { ...row, is_open: true } : { is_open: false, day: row.day };
+}
+
+/** The newest challenge that is out: today's, or yesterday's while today's is a secret. */
+export async function getLatestChallenge(): Promise<Challenge | null> {
+  const { data, error } = await client().rpc('latest_challenge');
+  if (error) throw error;
+  return ((data as Challenge[] | null) ?? [])[0] ?? null;
 }
 
 export async function getFeed(challengeId: string, scope: FeedScope, before?: string): Promise<FeedPost[]> {
@@ -71,14 +101,6 @@ export async function photoUrls(paths: string[]): Promise<Record<string, string>
     if (item.path && item.signedUrl) out[item.path] = item.signedUrl;
   }
   return out;
-}
-
-export async function setLiked(postId: string, liked: boolean): Promise<void> {
-  const db = client();
-  const { error } = liked
-    ? await db.from('post_likes').insert({ post_id: postId })
-    : await db.from('post_likes').delete().eq('post_id', postId);
-  if (error && error.code !== '23505') throw error;
 }
 
 export async function setFollowing(userId: string, following: boolean, me: string): Promise<void> {
@@ -114,6 +136,44 @@ export async function myPost(challengeId: string, me: string): Promise<{ id: str
 async function readPhoto(uri: string): Promise<ArrayBuffer> {
   if (Platform.OS === 'web') return (await fetch(uri)).arrayBuffer();
   return new File(uri).arrayBuffer();
+}
+
+/** Uploads a front-camera photo as your reaction, replacing (and deleting) an earlier one. */
+export async function reactWithPhoto(postId: string, me: string, uri: string): Promise<void> {
+  const db = client();
+  const path = reactionPath(me, postId, Math.random().toString(36).slice(2));
+  const upload = await db.storage.from(BUCKET).upload(path, await readPhoto(uri), { contentType: 'image/jpeg', upsert: false });
+  if (upload.error) throw upload.error;
+  const { data: oldPath, error } = await db.rpc('react_to_post', { p_post_id: postId, p_image_path: path });
+  if (error) {
+    await db.storage.from(BUCKET).remove([path]);
+    throw error;
+  }
+  if (typeof oldPath === 'string') await db.storage.from(BUCKET).remove([oldPath]);
+}
+
+export async function getUserStats(userId: string): Promise<UserStats | null> {
+  const { data, error } = await client().rpc('user_stats', { p_user_id: userId });
+  if (error) throw error;
+  return ((data as UserStats[] | null) ?? [])[0] ?? null;
+}
+
+export async function getUserPosts(userId: string): Promise<ProfilePost[]> {
+  const { data, error } = await client()
+    .from('posts')
+    .select('id, image_path, points, challenges(day, title)')
+    .eq('user_id', userId)
+    .eq('status', 'visible')
+    .order('created_at', { ascending: false })
+    .limit(60);
+  if (error) throw error;
+  return (data ?? []) as unknown as ProfilePost[];
+}
+
+export async function getRanking(scope: FeedScope): Promise<RankRow[]> {
+  const { data, error } = await client().rpc('monthly_ranking', { p_scope: scope, p_limit: 100 });
+  if (error) throw error;
+  return (data ?? []) as RankRow[];
 }
 
 /** Uploads a camera photo and posts it. Removes the upload again if posting fails. */

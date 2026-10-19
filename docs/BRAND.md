@@ -6,9 +6,9 @@ UPZZY viene de "oopsie". Todo es tranquilo, limpio y mínimo, con UN error delib
 
 ## Reglas en la app
 
-- **Oops Orange `#E4572E` solo marca el error:** la segunda Z del logo, la forma que encuentras en el juego, una vida perdida, una ronda fallada. Nunca en botones ni en la navegación.
+- **Oops Orange `#E4572E` solo marca el error:** la segunda Z del logo y los dibujos de la tienda. Nunca en botones, puntos ni navegación.
 - **Un solo gesto por pantalla:** la Z que se cae (slip), el contorno movido (misregistration), la forma fuera de línea, la letra al revés (wrong side).
-- **Texto:** minúsculas, corto y seco. "oops.", "nope. keep looking.", "no undo.", "new best. on purpose."
+- **Texto:** minúsculas, corto y seco. "oops.", "posted. no undo.", "not out yet.", "be quick."
 - **Tipografía:** Archivo Black en mayúsculas solo para el logo y los números grandes. Inter en minúsculas para todo lo demás.
 - **Formas:** círculos, cuadrados, barras, puntos y letras sueltas. Sin ilustraciones, fotos, degradados ni texturas.
 - **Mucho espacio vacío.**

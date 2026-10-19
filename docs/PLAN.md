@@ -1,25 +1,31 @@
 # Plan
 
-## Ahora: sencilla y que enganche
+## Ahora: un challenge al día, tipo BeReal
 
 Tres pestañas:
 
 | Pestaña | Qué es |
 | --- | --- |
-| **today** | *Daily oops*: 10 cuadrículas, el mismo reto para todo el mundo, un intento al día. Racha de días y resultado para compartir. No hay modo infinito: se juega una vez al día. |
-| **oops** | El challenge de foto del día. Feed a pantalla completa tipo TikTok: deslizas para ver la siguiente, doble toque para like. Arriba **global** y **friends** (la gente que sigues). Foto solo con la cámara, una al día. Reportar, bloquear y compartir tu foto. |
-| **drop** | Drop 001 con enlace a la tienda de upzzyworld.com. |
+| **home** | Las fotos del challenge de hoy, una por pantalla. Arriba **global** o **friends**. Cada foto lleva en pequeño las reacciones: selfies de la gente con la cámara frontal (doble toque o "react"). Mientras el challenge de hoy no ha salido se ven las fotos de ayer. |
+| **ranking** | Puntos del mes, global y amigos. |
+| **you** | Tu perfil: cuadrícula de tus fotos, racha de días seguidos y puntos. Ajustes y tienda. Tocando un nombre ves el perfil de otra persona y puedes seguirla. |
+
+Reglas (todas en el servidor):
+- El challenge sale cada día a una hora al azar entre las 9:00 y las 21:00 (Madrid), la misma para todos. Antes de esa hora nadie ve ni el título.
+- Puntos: 100 si publicas en los 5 primeros minutos, 1 menos cada 5 minutos, mínimo 10.
+- Racha: días seguidos con foto. Se mantiene hasta que acaba el día siguiente.
+- Ranking: suma de puntos del mes (hora de Madrid). En amigos sales tú y la gente que sigues.
 
 ## Paso a paso
 
-1. ✓ **Challenges y feed**: login con código por email, foto diaria con la cámara, feed global y de amigos, likes, seguir, reportar, bloquear, borrar cuenta.
-2. **Racha de 100 días con premio**: la racha del daily guardada y validada en el servidor; a los 100 días, un código para una prenda gratis.
-3. **Comentarios y perfiles**: abrir el perfil de alguien y ver sus fotos.
-4. **Competición mensual**: gana quien complete más challenges válidos del mes.
-5. **First 100**, **Drops con reservas** y **Creator Club**.
-6. Notificaciones: "the daily oops is out."
+1. ✓ Fotos con la cámara, feed global y amigos, seguir, reportar, bloquear, borrar cuenta.
+2. ✓ Challenge a hora al azar, puntos por rapidez, reacciones con selfie, perfil, racha, ranking.
+3. **Notificación** cuando sale el challenge ("the oops is out. 2 min for 100 pts.").
+4. **Email propio** (Resend) para que el login funcione para todo el mundo.
+5. Premios: racha de 100 días y ganador del mes, revisados por una persona.
+6. Comentarios, First 100, Drops con reservas, Creator Club.
 
 ## Base técnica que ya existe
 
 - Expo SDK 57 + TypeScript + Expo Router.
-- Supabase: perfiles, roles, registro de auditoría, challenges, fotos, likes, seguir, reportes y bloqueos, con tests de seguridad (`npm run test:db`).
+- Supabase: perfiles, roles, registro de auditoría, challenges, fotos, reacciones, puntos, seguir, reportes y bloqueos, con tests de seguridad (`npm run test:db`).

@@ -44,6 +44,9 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="account" options={{ presentation: 'modal' }} />
         <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="react" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="user/[id]" />
+        <Stack.Screen name="drop" />
       </Stack>
     </ThemeProvider>
   );

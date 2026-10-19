@@ -5,24 +5,16 @@ import {
   isEmail,
   isLoginCode,
   isPlaceholderUsername,
-  likesLabel,
+  lateLabel,
+  minutesBetween,
+  monthName,
   normalizeCaption,
   photoPath,
-  toggleLike,
-  type FeedPost,
+  pointsFor,
+  reactionPath,
+  shortDay,
+  streakLabel,
 } from '@/social/rules';
-
-const post: FeedPost = {
-  id: 'p',
-  user_id: 'u',
-  username: 'uno',
-  image_path: 'u/c-a.jpg',
-  caption: null,
-  like_count: 2,
-  created_at: '2026-10-19T10:00:00Z',
-  liked: false,
-  following: false,
-};
 
 describe('social rules', () => {
   it('cleans captions and keeps them short', () => {
@@ -53,22 +45,38 @@ describe('social rules', () => {
     expect(isLoginCode('12a456')).toBe(false);
   });
 
-  it('toggles likes without going negative', () => {
-    const liked = toggleLike(post);
-    expect(liked).toMatchObject({ liked: true, like_count: 3 });
-    expect(toggleLike(liked)).toMatchObject({ liked: false, like_count: 2 });
-    expect(toggleLike({ ...post, liked: true, like_count: 0 }).like_count).toBe(0);
-  });
-
   it('detects double taps', () => {
     expect(isDoubleTap(1000, 1200)).toBe(true);
     expect(isDoubleTap(1000, 1400)).toBe(false);
     expect(isDoubleTap(0, 0)).toBe(false);
   });
 
-  it('writes like counts in plain words', () => {
-    expect(likesLabel(0)).toBe('no likes yet');
-    expect(likesLabel(1)).toBe('1 like');
-    expect(likesLabel(12)).toBe('12 likes');
+  it('gives points like the server: 100 early, 1 less every 5 minutes, at least 10', () => {
+    expect(pointsFor(0)).toBe(100);
+    expect(pointsFor(5)).toBe(100);
+    expect(pointsFor(10)).toBe(99);
+    expect(pointsFor(30)).toBe(95);
+    expect(pointsFor(60)).toBe(89);
+    expect(pointsFor(180)).toBe(65);
+    expect(pointsFor(10000)).toBe(10);
+  });
+
+  it('measures and labels lateness', () => {
+    expect(minutesBetween('2026-10-19T10:00:00Z', '2026-10-19T10:30:00Z')).toBe(30);
+    expect(minutesBetween('2026-10-19T10:30:00Z', '2026-10-19T10:00:00Z')).toBe(0);
+    expect(lateLabel(0.5)).toBe('right at the drop');
+    expect(lateLabel(12.7)).toBe('12 min after the drop');
+    expect(lateLabel(185)).toBe('3 h after the drop');
+  });
+
+  it('builds reaction paths matching the server rule', () => {
+    expect(reactionPath('u', 'p', 'ab-1')).toBe('u/r-p-ab1.jpg');
+  });
+
+  it('names months and days in madrid time', () => {
+    expect(monthName(new Date('2026-10-31T23:30:00Z'))).toBe('november');
+    expect(shortDay('2026-10-19')).toBe('oct 19');
+    expect(streakLabel(1)).toBe('1 day streak');
+    expect(streakLabel(12)).toBe('12 day streak');
   });
 });

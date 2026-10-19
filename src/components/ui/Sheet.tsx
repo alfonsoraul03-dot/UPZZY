@@ -17,7 +17,7 @@ export function Sheet({ title, children }: { title: string; children: React.Reac
           {title}
         </Text>
         <Pressable
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/oops'))}
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
           accessibilityRole="button"
           hitSlop={12}>
           <Text color="textMuted">close</Text>

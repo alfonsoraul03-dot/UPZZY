@@ -2,7 +2,7 @@
 
 **happened by mistake. stayed on purpose.**
 
-App móvil (iOS y Android) de UPZZY: un juego diario de encontrar el error (*daily oops*), un challenge de foto al día con feed tipo TikTok (global y amigos) y el drop actual de la marca.
+App móvil (iOS y Android) de UPZZY: un challenge de foto al día que sale a una hora al azar, con feed global y de amigos, reacciones con selfie, perfil con racha y puntos, y ranking del mes.
 
 - Plan por fases: [docs/PLAN.md](docs/PLAN.md)
 - Sistema visual de la marca: [docs/BRAND.md](docs/BRAND.md)
@@ -36,7 +36,7 @@ Necesitas [Node.js](https://nodejs.org) 20 o superior (compruébalo con `node -v
    - Si no conecta, para el servidor con `Ctrl+C` y prueba `npx expo start --tunnel`.
 5. Para verla en el navegador del Mac pulsa `w` en la terminal.
 
-La pestaña **today** funciona sin backend ni conexión. La pestaña **oops** (challenges, fotos, likes, amigos) necesita Supabase: mira la sección siguiente. Sin Supabase verás "the feed isn't connected yet.".
+La app necesita Supabase: mira la sección siguiente. Sin Supabase verás "not connected yet.".
 
 ## Conectar Supabase (para los challenges y el feed)
 
@@ -70,10 +70,12 @@ La pestaña **today** funciona sin backend ni conexión. La pestaña **oops** (c
 
 ### Cambiar los challenges
 
-Cada día hay un challenge (hora de Madrid). Si no programas ninguno, sale uno de la lista `challenge_prompts`, que puedes editar en **Table Editor**. Para programar uno concreto (por ejemplo con premio), en **SQL Editor**:
+Cada día hay un challenge (hora de Madrid) que sale a una hora al azar entre las 9:00 y las 21:00. Si no programas ninguno, sale uno de la lista `challenge_prompts`, que puedes editar en **Table Editor**. Para programar uno concreto (por ejemplo con premio), en **SQL Editor**:
 
 ```sql
 select public.schedule_challenge('2026-10-25', 'tu upzzy en la playa.', 'arena cuenta. mar cuenta.', 'una camiseta gratis');
+-- con hora fija en vez de al azar:
+select public.schedule_challenge('2026-10-26', 'sunrise. no filter.', null, null, '2026-10-26 08:30+02');
 ```
 
 (Funciona desde el SQL Editor porque ahí eres el dueño de la base de datos; desde la app solo pueden hacerlo admins y moderadores.)
@@ -94,10 +96,12 @@ npm run test:db     # aplica las migraciones a un Postgres temporal y prueba la 
 
 ```
 src/app/            pantallas (Expo Router)
-  (tabs)/           today (daily oops), oops (challenge y feed), drop
-  account.tsx       login con código, nombre, cerrar sesión, borrar cuenta
+  (tabs)/           home (feed), ranking, you (perfil)
+  account.tsx       login, nombre, cerrar sesión, borrar cuenta
   capture.tsx       foto del challenge (solo cámara)
-src/game/           lógica del juego (niveles, daily, rachas), con tests
+  react.tsx         reacción con selfie
+  user/[id].tsx     perfil de otra persona
+  drop.tsx          tienda (drop 001)
 src/social/         reglas del challenge y del feed, con tests
 src/components/     tablero, logo y componentes de interfaz
 src/theme/          colores, tipografía y espaciado (design tokens)

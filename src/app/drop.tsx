@@ -2,8 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { Wordmark } from '@/components/brand/Wordmark';
-import { Button, Screen, Text } from '@/components/ui';
+import { Button, Sheet, Text } from '@/components/ui';
 import { haptic } from '@/lib/haptics';
 import { fonts, radius, space, useTheme } from '@/theme';
 
@@ -24,12 +23,7 @@ export default function DropScreen() {
   };
 
   return (
-    <Screen
-      header={
-        <View style={styles.header}>
-          <Wordmark />
-        </View>
-      }>
+    <Sheet title="shop">
       <View style={styles.intro}>
         <Text variant="label" color="textMuted">
           drop 001
@@ -66,7 +60,7 @@ export default function DropScreen() {
           made by mistake. worn on purpose.
         </Text>
       </View>
-    </Screen>
+    </Sheet>
   );
 }
 
@@ -110,7 +104,6 @@ function TypoArt() {
 }
 
 const styles = StyleSheet.create({
-  header: { height: 64, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center' },
   intro: { gap: space.sm, paddingTop: space.lg },
   list: { gap: space.md },
   piece: { flexDirection: 'row', alignItems: 'center', gap: space.lg, padding: space.lg, borderRadius: radius.md },

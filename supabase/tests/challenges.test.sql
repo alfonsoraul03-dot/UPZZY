@@ -23,11 +23,16 @@ create temp table t (k text primary key, v text);
 grant all on t to anon, authenticated;
 
 -- 1. Anyone gets today's challenge; it is created once from the prompt pool.
+--    (Its random opening time is moved to the past here; daily_drop.test.sql covers the wait.)
 select pg_temp.act_as(null);
-insert into t select 'challenge', (public.today_challenge()).id::text;
+select public.today_challenge();
+reset role;
+update public.challenges set opens_at = now() - interval '1 minute';
+insert into t select 'challenge', id::text from public.challenges;
+select pg_temp.act_as(null);
 do $$ begin
   if (select v from t where k = 'challenge') is null then raise exception 'no challenge today'; end if;
-  if (public.today_challenge()).id::text <> (select v from t where k = 'challenge') then raise exception 'today changed between calls'; end if;
+  if (select id::text from public.today_challenge()) <> (select v from t where k = 'challenge') then raise exception 'today changed between calls'; end if;
   if (select count(*) from public.challenges) <> 1 then raise exception 'expected exactly one challenge'; end if;
 end $$;
 reset role;
@@ -142,7 +147,6 @@ begin
   exception when insufficient_privilege then null;
   end;
   if (select like_count from public.posts where id = p) <> 1 then raise exception 'like not counted'; end if;
-  if not (select liked from public.challenge_feed((select v::uuid from t where k = 'challenge'))) then raise exception 'feed does not show my like'; end if;
 end $$;
 delete from public.post_likes where post_id = (select v::uuid from t where k = 'post');
 do $$ begin

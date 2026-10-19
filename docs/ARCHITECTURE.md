@@ -5,7 +5,7 @@
 ```
 Pantallas (src/app)          solo presentación y navegación
 Componentes (src/components) UI reutilizable y piezas de marca
-Reglas (src/game, src/social) lógica pura con tests (juego, feed)
+Reglas (src/social)          lógica pura con tests (puntos, rutas de fotos, textos)
 Lógica (src/lib)             cliente Supabase, llamadas al backend, configuración
 Backend (supabase/)          Postgres + RLS + funciones SQL / Edge Functions
 ```
@@ -27,17 +27,20 @@ Backend (supabase/)          Postgres + RLS + funciones SQL / Edge Functions
 | `profiles` | Un perfil por usuario, creado al registrarse con un username provisional |
 | `user_roles` | Roles de staff: `admin`, `moderator` |
 | `audit_log` | Historial inmutable de acciones sensibles |
-| `challenges` | Un challenge por día (hora de Madrid), con premio opcional |
+| `challenges` | Un challenge por día (hora de Madrid), con hora de salida al azar (`opens_at`) y premio opcional |
 | `challenge_prompts` | Lista de challenges para los días que nadie programó |
-| `posts` | La foto de cada persona en el challenge del día (máximo una) |
-| `post_likes` | Likes; el contador lo lleva un trigger, no el móvil |
+| `posts` | La foto de cada persona en el challenge del día (máximo una), con los puntos que calculó el servidor |
+| `post_reactions` | Reacciones con selfie (una por persona y foto) |
+| `post_likes` | Likes (de momento sin uso en la app) |
 | `follows` | A quién sigues; el feed "friends" sale de aquí |
 | `post_reports` | Reportes; con 3 la foto se oculta sola y se registra |
 | `user_blocks` | Personas bloqueadas; sus fotos desaparecen de tu feed |
 
 Fotos: bucket privado `oops` (máx. 5 MB, solo JPEG). Cada usuario solo sube a su carpeta, y una foto solo se puede ver si su post es visible. El feed pide enlaces temporales (1 hora).
 
-Reglas que comprueba el servidor (`submit_post`): que el challenge sea el de hoy, que la foto esté subida en tu carpeta y que no hayas publicado ya hoy. La app solo abre la cámara (nunca la galería), pero el servidor no puede demostrar que una foto es nueva ni que lleva ropa UPZZY: cualquier premio necesita revisión humana.
+Reglas que comprueba el servidor (`submit_post`): que el challenge sea el de hoy y ya haya salido, que la foto esté subida en tu carpeta y que no hayas publicado ya hoy. La app solo abre la cámara (nunca la galería), pero el servidor no puede demostrar que una foto es nueva ni que lleva ropa UPZZY: cualquier premio necesita revisión humana.
+
+Lecturas: `today_challenge` (oculta el título hasta la hora), `latest_challenge`, `challenge_feed`, `user_stats` (racha y puntos) y `monthly_ranking`.
 
 Las siguientes tablas se añaden en su paso: racha de 100 días con premio validada en el servidor, comentarios, competición mensual, First 100, drops con reservas, Creator Club.
 

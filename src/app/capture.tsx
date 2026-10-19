@@ -7,8 +7,8 @@ import { Linking, StyleSheet, View } from 'react-native';
 import { Button, Field, Sheet, Text } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { haptic } from '@/lib/haptics';
-import { friendlyError, getTodayChallenge, myPost, submitPhoto, type Challenge } from '@/lib/social';
-import { CAPTION_MAX } from '@/social/rules';
+import { friendlyError, getToday, myPost, submitPhoto, type Challenge } from '@/lib/social';
+import { CAPTION_MAX, minutesBetween, pointsFor } from '@/social/rules';
 import { radius, space, useTheme } from '@/theme';
 
 type Step = 'intro' | 'denied' | 'preview' | 'posting' | 'done';
@@ -27,6 +27,8 @@ export default function CaptureScreen() {
   const [uri, setUri] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [closed, setClosed] = useState(false);
+  const [, tick] = useState(0);
 
   useEffect(() => {
     if (!ready) return;
@@ -36,14 +38,24 @@ export default function CaptureScreen() {
     }
     (async () => {
       try {
-        const today = await getTodayChallenge();
+        const today = await getToday();
+        if (!today?.is_open) {
+          setClosed(true);
+          return;
+        }
         setChallenge(today);
-        if (today) setAlready(!!(await myPost(today.id, userId)));
+        setAlready(!!(await myPost(today.id, userId)));
       } catch (e) {
         setLoadError(friendlyError(e));
       }
     })();
   }, [ready, userId]);
+
+  // Keep the "worth N points" line honest while the person is deciding.
+  useEffect(() => {
+    const id = setInterval(() => tick((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const shoot = async () => {
     haptic('tap');
@@ -78,6 +90,16 @@ export default function CaptureScreen() {
     return (
       <Sheet title="today's challenge">
         <Text variant="title">{loadError}</Text>
+        <Button label="close" variant="outline" onPress={() => router.back()} />
+      </Sheet>
+    );
+  }
+
+  if (closed) {
+    return (
+      <Sheet title="today's challenge">
+        <Text variant="title">not out yet.</Text>
+        <Text color="textMuted">it drops at a random time. be quick when it does.</Text>
         <Button label="close" variant="outline" onPress={() => router.back()} />
       </Sheet>
     );
@@ -141,7 +163,7 @@ export default function CaptureScreen() {
       {challenge.reward ? <Text>prize: {challenge.reward}</Text> : null}
       <Button label="take photo" onPress={shoot} style={styles.cta} />
       <Text variant="caption" color="textMuted">
-        camera only. no old photos. one a day.
+        worth {pointsFor(minutesBetween(challenge.opens_at, new Date()))} points right now. camera only. one a day.
       </Text>
     </Sheet>
   );

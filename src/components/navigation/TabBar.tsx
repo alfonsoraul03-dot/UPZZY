@@ -8,9 +8,9 @@ import { fonts, layout, useTheme } from '@/theme';
 
 /** Route name → label. The order of routes comes from `(tabs)/_layout.tsx`. */
 export const TABS: Record<string, string> = {
-  index: 'today',
-  oops: 'oops',
-  drop: 'drop',
+  index: 'home',
+  ranking: 'ranking',
+  you: 'you',
 };
 
 /** Three quiet lowercase words. The active one gets a small dot under it. */

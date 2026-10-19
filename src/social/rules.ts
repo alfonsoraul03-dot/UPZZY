@@ -8,16 +8,20 @@ export const CAPTION_MAX = 80;
 
 export type FeedScope = 'global' | 'friends';
 
+export type Reaction = { user_id: string; username: string | null; image_path: string };
+
 export type FeedPost = {
   id: string;
   user_id: string;
   username: string | null;
   image_path: string;
   caption: string | null;
-  like_count: number;
+  points: number;
   created_at: string;
-  liked: boolean;
   following: boolean;
+  reaction_count: number;
+  reactions: Reaction[];
+  my_reaction: string | null;
 };
 
 export function normalizeCaption(input: string): string | null {
@@ -44,25 +48,55 @@ export function isLoginCode(input: string): boolean {
   return /^\d{6,10}$/.test(input.trim());
 }
 
-/** Optimistic like toggle; the server keeps the real count. */
-export function toggleLike(post: FeedPost): FeedPost {
-  return post.liked
-    ? { ...post, liked: false, like_count: Math.max(0, post.like_count - 1) }
-    : { ...post, liked: true, like_count: post.like_count + 1 };
-}
-
 export const DOUBLE_TAP_MS = 280;
 
 export function isDoubleTap(lastTapAt: number, now: number): boolean {
   return now - lastTapAt > 0 && now - lastTapAt <= DOUBLE_TAP_MS;
 }
 
-/** "12 likes", "1 like", "no likes yet". */
-export function likesLabel(count: number): string {
-  if (count <= 0) return 'no likes yet';
-  return count === 1 ? '1 like' : `${count} likes`;
-}
-
 export function displayName(username: string | null): string {
   return username && !isPlaceholderUsername(username) ? `@${username}` : 'someone';
+}
+
+/** Reaction photos: `<user>/r-<post>-<random>.jpg`, matching `react_to_post`. */
+export function reactionPath(userId: string, postId: string, random: string): string {
+  return `${userId}/r-${postId}-${random.replace(/[^a-z0-9]/gi, '').slice(0, 16) || 'photo'}.jpg`;
+}
+
+/**
+ * Points for posting `minutes` after the drop: 100 in the first 5 minutes,
+ * then one less every 5 minutes, never below 10. The server (`points_for`)
+ * decides; this is only for showing what a photo is worth right now.
+ */
+export function pointsFor(minutes: number): number {
+  return Math.max(10, 100 - Math.floor(Math.max(minutes - 5, 0) / 5));
+}
+
+export function minutesBetween(from: string | Date, to: string | Date): number {
+  return Math.max(0, (new Date(to).getTime() - new Date(from).getTime()) / 60000);
+}
+
+/** "2 min after the drop", "3 h after the drop". */
+export function lateLabel(minutes: number): string {
+  if (minutes < 1) return 'right at the drop';
+  if (minutes < 60) return `${Math.floor(minutes)} min after the drop`;
+  return `${Math.floor(minutes / 60)} h after the drop`;
+}
+
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
+/** Month name in Madrid time, matching the server's ranking month. */
+export function monthName(date: Date): string {
+  const month = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', month: 'numeric' }).format(date));
+  return MONTHS[month - 1];
+}
+
+/** "oct 19" for a YYYY-MM-DD challenge day. */
+export function shortDay(day: string): string {
+  const [, m, d] = day.split('-').map(Number);
+  return `${MONTHS[m - 1].slice(0, 3)} ${d}`;
+}
+
+export function streakLabel(days: number): string {
+  return days === 1 ? '1 day streak' : `${days} day streak`;
 }
