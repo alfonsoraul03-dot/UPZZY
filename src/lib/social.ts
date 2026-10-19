@@ -34,6 +34,9 @@ function client() {
 export function friendlyError(error: unknown): string {
   const e = error as { code?: string; message?: string } | null;
   if (e?.code === '23505') return 'already done.';
+  if (e?.code === 'over_email_send_rate_limit' || (e as { status?: number } | null)?.status === 429) {
+    return 'too many emails for now. try again in an hour.';
+  }
   if (e?.message?.includes('This challenge is closed')) return 'this challenge closed. new one is up.';
   if (e?.message === 'not connected') return 'not connected yet.';
   if (e?.message?.toLowerCase().includes('network')) return 'no connection. try again.';
