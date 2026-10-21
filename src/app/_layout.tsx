@@ -53,6 +53,7 @@ export default function RootLayout() {
         <Stack.Screen name="chat/[id]" />
         <Stack.Screen name="drop" />
         <Stack.Screen name="review" />
+        <Stack.Screen name="unlock" />
       </Stack>
     </ThemeProvider>
   );

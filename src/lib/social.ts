@@ -79,6 +79,7 @@ export function friendlyError(error: unknown): string {
   }
   if (e?.code === '54000') return 'slow down a little.';
   if (e?.message === 'You can only message friends') return 'only friends can message each other.';
+  if (e?.message === 'Unlock upzzy with the code from your piece') return 'unlock upzzy with the code from your package first.';
   if (e?.code === 'anonymous_provider_disabled') return 'turn on anonymous sign-ins in supabase first.';
   if (e?.message?.includes('This challenge is closed')) return 'this challenge closed. new one is up.';
   if (e?.message === 'not connected') return 'not connected yet.';
@@ -385,4 +386,20 @@ export async function getPendingPosts(): Promise<PendingPost[]> {
 export async function reviewPost(postId: string, hasUpzzy: boolean): Promise<void> {
   const { error } = await client().rpc('review_post', { p_post_id: postId, p_has_upzzy: hasUpzzy });
   if (error) throw error;
+}
+
+/** Only people who bought a piece get in: members (code redeemed) and staff. */
+export async function hasAccess(): Promise<boolean> {
+  const { data, error } = await client().rpc('has_access');
+  if (error) throw error;
+  return !!data;
+}
+
+export type RedeemResult = 'ok' | 'used' | 'unknown' | 'wait';
+
+/** Unlocks the account with the one-time code from the package. The server checks and spends it. */
+export async function redeemCode(code: string): Promise<RedeemResult> {
+  const { data, error } = await client().rpc('redeem_code', { p_code: code });
+  if (error) throw error;
+  return data as RedeemResult;
 }

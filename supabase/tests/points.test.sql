@@ -15,6 +15,8 @@ insert into auth.users (id, email) values
   ('40000000-0000-0000-0000-000000000001', 'uno@test'),
   ('40000000-0000-0000-0000-000000000002', 'dos@test'),
   ('40000000-0000-0000-0000-000000000003', 'tres@test');
+-- Everyone here bought a piece (access.test.sql covers people who did not).
+insert into public.members (user_id) select id from auth.users on conflict do nothing;
 insert into public.user_roles (user_id, role) values ('40000000-0000-0000-0000-00000000000d', 'moderator');
 update public.profiles set username = 'uno' where id = '40000000-0000-0000-0000-000000000001';
 

@@ -15,6 +15,8 @@ insert into auth.users (id, email) values
   ('20000000-0000-0000-0000-000000000001', 'uno@test'),
   ('20000000-0000-0000-0000-000000000002', 'dos@test'),
   ('20000000-0000-0000-0000-000000000003', 'tres@test');
+-- Everyone here bought a piece (access.test.sql covers people who did not).
+insert into public.members (user_id) select id from auth.users on conflict do nothing;
 insert into public.user_roles (user_id, role) values ('20000000-0000-0000-0000-00000000000d', 'moderator');
 update public.profiles set username = 'uno' where id = '20000000-0000-0000-0000-000000000001';
 update public.profiles set username = 'dos' where id = '20000000-0000-0000-0000-000000000002';
@@ -133,13 +135,13 @@ begin
   end;
 end $$;
 reset role;
-select pg_temp.act_as(null);
+select pg_temp.act_as('20000000-0000-0000-0000-000000000002');
 do $$
 declare row record;
 begin
   select * into row from public.challenge_feed((select v::uuid from t where k = 'challenge')) where id = (select v::uuid from t where k = 'post1');
   if row.reaction_count <> 1 or row.reactions->0->>'username' <> 'dos' then raise exception 'feed reactions wrong: %', row.reactions; end if;
-  if not exists (select 1 from storage.objects where name like '20000000-0000-0000-0000-000000000002/r-%-2.jpg') then raise exception 'anon cannot see a reaction photo'; end if;
+  if not exists (select 1 from storage.objects where name like '20000000-0000-0000-0000-000000000002/r-%-2.jpg') then raise exception 'members cannot see a reaction photo'; end if;
 end $$;
 reset role;
 
@@ -168,7 +170,7 @@ insert into public.posts (user_id, challenge_id, image_path, points)
 select '20000000-0000-0000-0000-000000000001', id, 'old/' || day || '.jpg', 50 from public.challenges where day < public.challenge_day();
 -- Staff checked every photo: the UPZZY piece shows.
 update public.posts set review = 'approved';
-select pg_temp.act_as(null);
+select pg_temp.act_as('20000000-0000-0000-0000-000000000002');
 do $$
 declare s record;
 begin

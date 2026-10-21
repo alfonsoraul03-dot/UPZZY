@@ -16,6 +16,8 @@ insert into auth.users (id, email) values
   ('10000000-0000-0000-0000-000000000001', 'uno@test'),
   ('10000000-0000-0000-0000-000000000002', 'dos@test'),
   ('10000000-0000-0000-0000-000000000003', 'tres@test');
+-- Everyone here bought a piece (access.test.sql covers people who did not).
+insert into public.members (user_id) select id from auth.users on conflict do nothing;
 insert into public.user_roles (user_id, role) values ('10000000-0000-0000-0000-00000000000d', 'moderator');
 update public.profiles set username = 'uno' where id = '10000000-0000-0000-0000-000000000001';
 
@@ -110,13 +112,21 @@ end $$;
 reset role;
 
 -- 5. Anonymous visitors see the global feed and the photo, but cannot post.
+select pg_temp.act_as('10000000-0000-0000-0000-000000000002');
+do $$
+declare c uuid := (select v::uuid from t where k = 'challenge');
+begin
+  if (select count(*) from public.challenge_feed(c)) <> 1 then raise exception 'members should see one post'; end if;
+  if (select username from public.challenge_feed(c)) <> 'uno' then raise exception 'feed is missing the username'; end if;
+  if not exists (select 1 from storage.objects where name like '10000000-0000-0000-0000-000000000001/%') then raise exception 'members cannot read a visible photo'; end if;
+end $$;
+reset role;
+-- Photos are for members only (see access.test.sql).
 select pg_temp.act_as(null);
 do $$
 declare c uuid := (select v::uuid from t where k = 'challenge');
 begin
-  if (select count(*) from public.challenge_feed(c)) <> 1 then raise exception 'anon should see one post'; end if;
-  if (select username from public.challenge_feed(c)) <> 'uno' then raise exception 'feed is missing the username'; end if;
-  if not exists (select 1 from storage.objects where name like '10000000-0000-0000-0000-000000000001/%') then raise exception 'anon cannot read a visible photo'; end if;
+  if exists (select 1 from public.challenge_feed(c)) then raise exception 'anon sees the feed'; end if;
   begin
     perform public.submit_post(c, 'x');
     raise exception 'anon posted';

@@ -81,6 +81,16 @@ select public.schedule_challenge('2026-10-26', 'sunrise. no filter.', null, null
 
 (Funciona desde el SQL Editor porque ahí eres el dueño de la base de datos; desde la app solo pueden hacerlo admins y moderadores.)
 
+### Códigos de acceso (van en el paquete)
+
+Solo entra en la app quien ha comprado una prenda: cada paquete lleva un código de un solo uso. Para crear códigos, en **SQL Editor**:
+
+```sql
+select * from public.create_codes(100, 'drop 001');
+```
+
+Te devuelve 100 códigos tipo `UPZ-7K3MQ-9TX4P` que puedes descargar en CSV (botón de exportar del resultado) e imprimir en las tarjetas. Cada código sirve una sola vez. Para ver cuáles se han usado: **Table Editor → garment_codes** (`redeemed_at`). El staff entra sin código. Las cuentas que ya existían antes de este cambio siguen dentro.
+
 ### Revisar las fotos (prenda UPZZY)
 
 Las fotos solo suman puntos cuando alguien del staff confirma que sale una prenda UPZZY. Para ser staff, en **SQL Editor** (cambia `TU_NOMBRE` por tu nombre en la app):
@@ -116,6 +126,7 @@ src/app/            pantallas (Expo Router)
   chat/[id].tsx     conversación con un amigo
   drop.tsx          tienda (drop 001)
   review.tsx        revisar fotos (solo staff)
+  unlock.tsx        meter el código del paquete
 src/social/         reglas del challenge y del feed, con tests
 src/components/     tablero, logo y componentes de interfaz
 src/theme/          colores, tipografía y espaciado (design tokens)

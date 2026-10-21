@@ -47,6 +47,8 @@ Entrar sin email: en desarrollo (`__DEV__`) `useSession` entra solo con una cuen
 
 Puntos (`scores_since`, interno): cada reto vale al azar entre 100 y 500 (`max_points`) y te llevas más cuanto antes publiques (`post_points`). Las fotos empiezan en `review = 'pending'`: el staff las revisa con `review_post` (queda en `audit_log`) y solo las aprobadas suman sus puntos y sus likes (+1 cada uno, nunca de tu propia foto). Cada amigo (os seguís los dos) suma 10. `user_stats` y `monthly_ranking` solo devuelven totales.
 
+Acceso (`20261023000000_access.sql`): solo entran los `members` (canjearon un código de `garment_codes` con `redeem_code`, un uso por código, máx. 10 intentos fallidos por hora, auditado) y el staff. Sin acceso no se leen fotos, perfiles ni ranking (RLS) y un trigger impide publicar, reaccionar, dar like, seguir o escribir. El staff crea códigos con `create_codes`. Desde el SQL Editor (dueño de la base, sin `set role`) `has_role` cuenta como staff.
+
 Lecturas: `today_challenge` (oculta el título hasta la hora), `latest_challenge`, `challenge_feed`, `user_stats` (racha y puntos) y `monthly_ranking`.
 
 Las siguientes tablas se añaden en su paso: racha de 100 días con premio validada en el servidor, comentarios, competición mensual, First 100, drops con reservas, Creator Club.
