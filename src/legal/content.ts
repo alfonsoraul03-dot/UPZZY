@@ -3,8 +3,8 @@
  * and pasted on upzzyworld.com for the store listings. Keep both in sync.
  */
 
-/** Where people write to us. Shopify stores have this page by default. */
-export const CONTACT_URL = 'https://www.upzzyworld.com/pages/contact';
+/** Where people write to us: upzzy customer service. */
+export const CONTACT_EMAIL = 'upzzy.1@gmail.com';
 export const UPDATED = '21 october 2026';
 
 export type LegalDoc = { title: string; sections: { heading: string; body: string[] }[] };
@@ -51,13 +51,13 @@ export const PRIVACY: LegalDoc = {
     {
       heading: 'your rights',
       body: [
-        'you can ask to see, fix, export or delete your data, or object to how we use it. write to us and we answer within 30 days. if you are in the eu you can also complain to your data protection authority (in spain, the aepd).',
+        `you can ask to see, fix, export or delete your data, or object to how we use it. write to ${CONTACT_EMAIL} and we answer within 30 days. if you are in the eu you can also complain to your data protection authority (in spain, the aepd).`,
         'upzzy is for people 16 and over.',
       ],
     },
     {
       heading: 'contact',
-      body: [`write to us at ${CONTACT_URL}. we update this page when something changes. last update: ${UPDATED}.`],
+      body: [`upzzy customer service: ${CONTACT_EMAIL}. we update this page when something changes. last update: ${UPDATED}.`],
     },
   ],
 };
@@ -104,7 +104,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'contact',
-      body: [`questions: ${CONTACT_URL}. last update: ${UPDATED}.`],
+      body: [`questions: upzzy customer service, ${CONTACT_EMAIL}. last update: ${UPDATED}.`],
     },
   ],
 };
