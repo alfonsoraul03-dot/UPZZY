@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, type PressableProps } from 'react-native';
+import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 
 import { fonts, radius, space, useTheme } from '@/theme';
 
@@ -8,10 +8,12 @@ export type ButtonProps = Omit<PressableProps, 'children'> & {
   /** Lowercase, short, dry: "start", "again", "share". */
   label: string;
   variant?: 'solid' | 'outline';
+  /** Shown before the label, like a sign-in logo. Gets the label colour. */
+  icon?: (color: string) => React.ReactNode;
 };
 
 /** Buttons use the main thread colour. Oops Orange is reserved for mistakes. */
-export function Button({ label, variant = 'solid', disabled, style, ...rest }: ButtonProps) {
+export function Button({ label, variant = 'solid', icon, disabled, style, ...rest }: ButtonProps) {
   const theme = useTheme();
   const solid = variant === 'solid';
 
@@ -32,7 +34,10 @@ export function Button({ label, variant = 'solid', disabled, style, ...rest }: B
         typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}>
-      <Text style={[styles.label, { color: solid ? theme.onText : theme.text }]}>{label}</Text>
+      <View style={styles.row}>
+        {icon?.(solid ? theme.onText : theme.text)}
+        <Text style={[styles.label, { color: solid ? theme.onText : theme.text }]}>{label}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -46,5 +51,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   label: { fontFamily: fonts.bodySemiBold, fontSize: 16 },
 });

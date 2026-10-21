@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 
 import * as AppleAuthentication from 'expo-apple-authentication';
 
+import { AppleLogo, GoogleLogo } from '@/components/auth/BrandLogos';
 import { Button, Field, Text } from '@/components/ui';
 import { nativeAppleAvailable, signInWith, type Provider } from '@/lib/oauth';
 import { friendlyError, sendLoginCode, signInWithoutEmail, verifyLoginCode } from '@/lib/social';
@@ -86,9 +87,9 @@ export function SignInOptions({ linkProblem }: { linkProblem: string | null }) {
               onPress={() => !busy && withProvider('apple')}
             />
           ) : (
-            <Button label="continue with apple" onPress={() => withProvider('apple')} disabled={busy} />
+            <Button label="continue with apple" icon={(color) => <AppleLogo color={color} />} onPress={() => withProvider('apple')} disabled={busy} />
           )}
-          <Button label="continue with google" variant="outline" onPress={() => withProvider('google')} disabled={busy} />
+          <Button label="continue with google" variant="outline" icon={() => <GoogleLogo />} onPress={() => withProvider('google')} disabled={busy} />
           <Button label="use email instead" variant="outline" onPress={() => setStep('email')} disabled={busy} />
           {__DEV__ ? <Button label="skip (dev only)" variant="outline" onPress={skip} disabled={busy} /> : null}
           <Text variant="caption" color="textMuted">
