@@ -58,6 +58,7 @@ npx supabase functions deploy apple-revoke
 1. En console.cloud.google.com, crea un proyecto y configura la **OAuth consent screen** como External, con nombre upzzy.
 2. En Credentials → Create credentials → OAuth client ID, elige el tipo **Web application**. Pon como redirect URI `https://invplnoxmxoqndfyblej.supabase.co/auth/v1/callback`.
 3. En Supabase → Providers → **Google**, actívalo y pega el Client ID y el Secret.
+4. Mientras pruebas, añade tu email en Google Auth Platform → Audience → **Test users**. El día del lanzamiento pulsa **Publish app** ahí mismo; si no, solo podrán entrar los usuarios de prueba.
 
 ## 7. URLs en Supabase
 
