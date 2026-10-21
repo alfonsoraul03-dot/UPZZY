@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Wordmark } from '@/components/brand/Wordmark';
-import { Button, Screen, Text } from '@/components/ui';
+import { Avatar, Button, Screen, Text } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { friendlyError, getChats, onNewMessage, type Chat } from '@/lib/social';
 import { chatTime, displayName } from '@/social/rules';
@@ -89,29 +89,29 @@ export default function ChatsScreen() {
               onPress={() => router.push({ pathname: '/chat/[id]', params: { id: c.user_id } })}
               accessibilityRole="link"
               accessibilityLabel={`${displayName(c.username)}${unread ? `, ${c.unread} new` : ''}`}
-              style={({ pressed }) => [styles.row, { borderColor: theme.border, opacity: pressed ? 0.6 : 1 }]}>
+              style={({ pressed }) => [styles.row, { opacity: pressed ? 0.6 : 1 }]}>
+              <Avatar name={c.username} size={56} />
               <View style={styles.middle}>
-                <Text style={{ fontFamily: unread ? fonts.bodySemiBold : fonts.body }} numberOfLines={1}>
-                  {displayName(c.username)}
+                <Text style={{ fontFamily: unread ? fonts.bodyBold : fonts.bodyMedium }} numberOfLines={1}>
+                  {displayName(c.username).replace(/^@/, '')}
                 </Text>
-                <Text variant="caption" color={unread ? 'text' : 'textMuted'} numberOfLines={1}>
-                  {preview}
-                </Text>
-              </View>
-              <View style={styles.side}>
-                {c.last_at ? (
-                  <Text variant="caption" color="textMuted">
-                    {chatTime(c.last_at, new Date())}
+                <View style={styles.previewRow}>
+                  <Text
+                    variant="caption"
+                    color={unread ? 'text' : 'textMuted'}
+                    style={[styles.preview, unread && { fontFamily: fonts.bodyBold }]}
+                    numberOfLines={1}>
+                    {unread && c.unread > 1 ? `${c.unread > 9 ? '9+' : c.unread} new messages` : preview}
                   </Text>
-                ) : null}
-                {unread ? (
-                  <View style={[styles.badge, { backgroundColor: theme.text }]}>
-                    <Text variant="caption" style={{ color: theme.onText, fontFamily: fonts.bodySemiBold }}>
-                      {c.unread > 99 ? '99+' : c.unread}
+                  {c.last_at ? (
+                    <Text variant="caption" color="textMuted">
+                      {' · '}
+                      {chatTime(c.last_at, new Date())}
                     </Text>
-                  </View>
-                ) : null}
+                  ) : null}
+                </View>
               </View>
+              {unread ? <View style={[styles.dot, { backgroundColor: theme.text }]} accessible={false} /> : null}
             </Pressable>
           );
         })}
@@ -121,7 +121,7 @@ export default function ChatsScreen() {
   return (
     <Screen header={header}>
       <View style={styles.gap}>
-        <Text variant="title">your friends.</Text>
+        <Text variant="heading">messages</Text>
         <Text color="textMuted">friends follow each other. only you two see the chat.</Text>
       </View>
       {list}
@@ -130,16 +130,11 @@ export default function ChatsScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { height: 64, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center' },
-  gap: { gap: space.md },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.lg,
-    paddingVertical: space.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  middle: { flex: 1, gap: space.xxs },
-  side: { alignItems: 'flex-end', gap: space.xs },
-  badge: { minWidth: 22, height: 22, borderRadius: 11, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center' },
+  header: { height: 56, alignItems: 'center', justifyContent: 'center' },
+  gap: { gap: space.xs },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.sm },
+  middle: { flex: 1, gap: 2 },
+  previewRow: { flexDirection: 'row', alignItems: 'center' },
+  preview: { flexShrink: 1 },
+  dot: { width: 9, height: 9, borderRadius: 5 },
 });

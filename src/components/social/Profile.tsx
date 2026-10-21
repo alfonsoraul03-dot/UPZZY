@@ -3,7 +3,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Text } from '@/components/ui';
+import { Avatar, Button, Icon, Text } from '@/components/ui';
 import { haptic } from '@/lib/haptics';
 import {
   areFriends,
@@ -16,7 +16,7 @@ import {
   type UserStats,
 } from '@/lib/social';
 import { displayName, monthName, shortDay, streakLabel } from '@/social/rules';
-import { radius, space, useTheme } from '@/theme';
+import { fonts, radius, space, useTheme } from '@/theme';
 
 type ProfileProps = {
   userId: string;
@@ -89,12 +89,25 @@ export function Profile({ userId, me, actions }: ProfileProps) {
     );
   }
 
+  const name = displayName(stats?.username ?? null);
+  const shownName = isMe && name === 'someone' ? 'you' : name.replace(/^@/, '');
+
   return (
     <View style={styles.gap}>
-      <Text variant="title">{isMe ? displayName(stats?.username ?? null).replace('someone', 'you') : displayName(stats?.username ?? null)}</Text>
+      <View style={styles.head}>
+        <Avatar name={stats?.username ?? null} size={108} />
+        <Text variant="heading" style={styles.center}>
+          {shownName}
+        </Text>
+        {name.startsWith('@') ? (
+          <Text color="textMuted" style={styles.center}>
+            {name}
+          </Text>
+        ) : null}
+      </View>
 
-      <View style={[styles.stats, { borderColor: theme.border }]}>
-        <Stat value={stats?.streak ?? 0} label={streakLabel(stats?.streak ?? 0).replace(/^\d+ /, '')} />
+      <View style={styles.stats}>
+        <Stat value={stats?.streak ?? 0} label={streakLabel(stats?.streak ?? 0).replace(/^\d+ /, '')} icon />
         <Stat value={stats?.month_points ?? 0} label={`pts in ${monthName(new Date())}`} />
         <Stat value={stats?.posts ?? 0} label={(stats?.posts ?? 0) === 1 ? 'photo' : 'photos'} />
       </View>
@@ -110,6 +123,7 @@ export function Profile({ userId, me, actions }: ProfileProps) {
           {friends ? (
             <Button
               label="message"
+              variant="outline"
               onPress={() => router.push({ pathname: '/chat/[id]', params: { id: userId } })}
               style={styles.half}
             />
@@ -119,19 +133,23 @@ export function Profile({ userId, me, actions }: ProfileProps) {
         actions
       )}
 
+      <Text variant="title">{isMe ? 'your memories' : 'memories'}</Text>
       {posts.length ? (
         <View style={styles.grid}>
           {posts.map((p) => (
             <View key={p.id} style={styles.cell}>
-              <Image
-                source={urls[p.image_path] ? { uri: urls[p.image_path] } : undefined}
-                style={[styles.thumb, { backgroundColor: theme.surface }]}
-                contentFit="cover"
-                accessibilityLabel={p.challenges?.title ?? 'challenge photo'}
-              />
-              <Text variant="caption" color="textMuted">
-                {p.challenges ? shortDay(p.challenges.day) : ''} · +{p.points}
-              </Text>
+              <View style={[styles.thumb, { backgroundColor: theme.surface }]}>
+                <Image
+                  source={urls[p.image_path] ? { uri: urls[p.image_path] } : undefined}
+                  style={StyleSheet.absoluteFill}
+                  contentFit="cover"
+                  accessibilityLabel={p.challenges ? `${shortDay(p.challenges.day)}: ${p.challenges.title}` : 'challenge photo'}
+                />
+                <Text style={[styles.day, { color: theme.onPhoto, textShadowColor: theme.photoShadow }]}>
+                  {p.challenges ? Number(p.challenges.day.slice(8)) : ''}
+                </Text>
+                <Text style={[styles.pts, { color: theme.onPhoto, textShadowColor: theme.photoShadow }]}>+{p.points}</Text>
+              </View>
             </View>
           ))}
         </View>
@@ -142,30 +160,35 @@ export function Profile({ userId, me, actions }: ProfileProps) {
   );
 }
 
-function Stat({ value, label }: { value: number; label: string }) {
+function Stat({ value, label, icon }: { value: number; label: string; icon?: boolean }) {
+  const theme = useTheme();
   return (
-    <View style={styles.stat}>
-      <Text variant="title">{value}</Text>
-      <Text variant="caption" color="textMuted" style={styles.statLabel}>
+    <View style={[styles.stat, { backgroundColor: theme.surface }]}>
+      <View style={styles.statValue}>
+        <Text variant="title">{value}</Text>
+        {icon ? <Icon name="flame" color={theme.text} size={18} weight={2.2} /> : null}
+      </View>
+      <Text variant="caption" color="textMuted" style={styles.center}>
         {label}
       </Text>
     </View>
   );
 }
 
+const shadow = { textShadowRadius: 4, textShadowOffset: { width: 0, height: 1 } };
+
 const styles = StyleSheet.create({
-  gap: { gap: space.lg },
+  gap: { gap: space.xl },
+  head: { alignItems: 'center', gap: space.xs, paddingTop: space.sm },
+  center: { textAlign: 'center' },
+  stats: { flexDirection: 'row', gap: space.sm },
+  stat: { flex: 1, alignItems: 'center', gap: space.xxs, paddingVertical: space.lg, borderRadius: radius.lg },
+  statValue: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   row: { flexDirection: 'row', gap: space.md },
   half: { flex: 1, paddingHorizontal: space.lg },
-  stats: {
-    flexDirection: 'row',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: space.lg,
-  },
-  stat: { flex: 1, alignItems: 'center', gap: space.xxs },
-  statLabel: { textAlign: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -space.xs },
-  cell: { width: '33.333%', padding: space.xs, gap: space.xxs },
-  thumb: { width: '100%', aspectRatio: 3 / 4, borderRadius: radius.sm },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -3, marginTop: -space.md },
+  cell: { width: '25%', padding: 3 },
+  thumb: { width: '100%', aspectRatio: 3 / 4, borderRadius: radius.md + 4, overflow: 'hidden' },
+  day: { position: 'absolute', left: 6, bottom: 4, fontFamily: fonts.bodyHeavy, fontSize: 15, ...shadow },
+  pts: { position: 'absolute', right: 6, top: 4, fontFamily: fonts.bodyBold, fontSize: 10, ...shadow },
 });

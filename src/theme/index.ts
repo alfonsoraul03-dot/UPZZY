@@ -1,14 +1,12 @@
-import { useColorScheme } from 'react-native';
-
 import { colors, type ColorTokens } from './tokens';
 
 export * from './tokens';
 
-/** Light (Bone) is the brand default; dark mode follows the phone setting. */
+/** The app is dark for now, whatever the phone setting. Light tokens stay for later. */
 export function useTheme(): ColorTokens {
-  return colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
+  return colors.dark;
 }
 
 export function useIsDark(): boolean {
-  return useColorScheme() === 'dark';
+  return true;
 }

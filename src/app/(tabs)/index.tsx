@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, Text, Toggle } from '@/components/ui';
+import { Avatar, Button, Icon, Shade, Text, Toggle } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { haptic } from '@/lib/haptics';
 import {
@@ -34,7 +34,7 @@ import { fonts, layout, radius, space, useTheme } from '@/theme';
 
 type Load = 'loading' | 'ready' | 'error';
 
-const SCOPES = ['global', 'friends'] as const;
+const SCOPES = ['friends', 'global'] as const;
 
 /**
  * Home: today's challenge photos, one per screen. Swipe up for the next,
@@ -177,10 +177,28 @@ export default function HomeScreen() {
   const hasPhotos = posts.length > 0 && load === 'ready';
 
   const top = (
-    <View
-      style={[styles.top, { paddingTop: insets.top + space.sm, backgroundColor: hasPhotos ? theme.photoScrim : 'transparent' }]}
-      pointerEvents="box-none">
+    <View style={[styles.top, { paddingTop: insets.top + space.sm }]} pointerEvents="box-none">
       <Toggle options={SCOPES} value={scope} onChange={switchScope} onPhoto={hasPhotos} />
+      {challenge && hasPhotos ? (
+        <View style={styles.pills} pointerEvents="box-none">
+          <View style={[styles.pill, { backgroundColor: theme.photoScrim }]}>
+            <Text variant="caption" style={[styles.pillText, { color: theme.onPhoto }]} numberOfLines={1}>
+              {isToday ? 'today' : shortDay(challenge.day)} · {challenge.title}
+            </Text>
+          </View>
+          {counting ? (
+            <Pressable
+              onPress={takeYours}
+              accessibilityRole="button"
+              accessibilityLabel="take yours"
+              style={({ pressed }) => [styles.pill, { backgroundColor: theme.text, opacity: pressed ? 0.8 : 1 }]}>
+              <Text variant="caption" style={[styles.pillText, { color: theme.onText }]}>
+                take yours · {worth} pts
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
     </View>
   );
 
@@ -203,7 +221,7 @@ export default function HomeScreen() {
   } else if (!challenge) {
     body = (
       <View style={styles.center}>
-        <Text variant="title" style={styles.centerText}>
+        <Text variant="heading" style={styles.centerText}>
           not out yet.
         </Text>
         <Text color="textMuted" style={styles.centerText}>
@@ -217,7 +235,7 @@ export default function HomeScreen() {
         <Text variant="label" color="textMuted">
           {isToday ? 'today' : shortDay(challenge.day)}
         </Text>
-        <Text variant="title" style={styles.centerText}>
+        <Text variant="heading" style={styles.centerText}>
           {challenge.title}
         </Text>
         {challenge.description ? (
@@ -258,7 +276,6 @@ export default function HomeScreen() {
                 urls={urls}
                 height={height}
                 challenge={challenge}
-                isToday={isToday}
                 isMine={item.user_id === userId}
                 onReact={react}
                 onFollow={follow}
@@ -266,18 +283,6 @@ export default function HomeScreen() {
               />
             )}
           />
-        ) : null}
-        {counting ? (
-          <Pressable
-            onPress={takeYours}
-            accessibilityRole="button"
-            accessibilityLabel="take yours"
-            style={({ pressed }) => [
-              styles.floating,
-              { backgroundColor: theme.photoScrim, borderColor: theme.onPhoto, opacity: pressed ? 0.75 : 1 },
-            ]}>
-            <Text style={[styles.floatingLabel, { color: theme.onPhoto }]}>take yours · {worth} pts</Text>
-          </Pressable>
         ) : null}
       </View>
     );
@@ -310,7 +315,6 @@ function PostPage({
   urls,
   height,
   challenge,
-  isToday,
   isMine,
   onReact,
   onFollow,
@@ -320,7 +324,6 @@ function PostPage({
   urls: Record<string, string>;
   height: number;
   challenge: Challenge;
-  isToday: boolean;
   isMine: boolean;
   onReact: (post: FeedPost) => void;
   onFollow: (post: FeedPost) => void;
@@ -329,7 +332,8 @@ function PostPage({
   const theme = useTheme();
   const lastTap = useRef(0);
   const url = urls[post.image_path];
-  const onPhoto = { color: theme.onPhoto };
+  const onPhoto = [styles.shadow, { color: theme.onPhoto, textShadowColor: theme.photoShadow }];
+  const openProfile = () => router.push({ pathname: '/user/[id]', params: { id: post.user_id } });
 
   const onPress = () => {
     const at = Date.now();
@@ -341,82 +345,82 @@ function PostPage({
     }
   };
 
-  const shown = post.reactions.slice(0, 5);
-  const more = post.reaction_count - shown.length;
+  const faces = post.reactions.slice(0, 3);
 
   return (
     <Pressable onPress={onPress} style={{ height, backgroundColor: theme.surface }} accessibilityLabel={`photo by ${displayName(post.username)}`}>
       {url ? <Image source={{ uri: url }} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} /> : null}
+      <Shade from="top" height={190} strength={0.55} />
+      <Shade from="bottom" height={340} strength={0.8} />
 
-      <View style={[styles.band, styles.challengeBand, { backgroundColor: theme.photoScrim }]}>
-        <Text variant="label" style={onPhoto}>
-          {isToday ? 'today' : shortDay(challenge.day)}
-        </Text>
-        <Text variant="bodyStrong" style={onPhoto} numberOfLines={2}>
-          {challenge.title}
-        </Text>
-        {!isToday ? (
-          <Text variant="caption" style={onPhoto}>
-            today&apos;s drops at a random time. be quick.
-          </Text>
+      <View style={styles.side}>
+        <View style={styles.author}>
+          <Pressable onPress={openProfile} accessibilityRole="link" accessibilityLabel={`profile of ${displayName(post.username)}`}>
+            <Avatar name={post.username} size={50} ring={theme.onPhoto} />
+          </Pressable>
+          {!isMine && !post.following ? (
+            <Pressable
+              onPress={() => onFollow(post)}
+              accessibilityRole="button"
+              accessibilityLabel="follow"
+              hitSlop={8}
+              style={[styles.followBadge, { backgroundColor: theme.text }]}>
+              <Icon name="plus" color={theme.onText} size={14} weight={3} />
+            </Pressable>
+          ) : null}
+        </View>
+
+        {!isMine ? (
+          <Pressable onPress={() => onReact(post)} accessibilityRole="button" accessibilityLabel="react with a selfie" style={styles.action}>
+            <Icon name="camera" color={theme.onPhoto} size={34} weight={2} />
+            <Text style={[styles.actionLabel, onPhoto]}>{post.my_reaction ? 'again' : 'react'}</Text>
+          </Pressable>
+        ) : null}
+
+        <View style={styles.action} accessibilityLabel={`${post.reaction_count} reactions`}>
+          {faces.length ? (
+            faces.map((r, i) => (
+              <Image
+                key={r.image_path}
+                source={urls[r.image_path] ? { uri: urls[r.image_path] } : undefined}
+                style={[styles.face, { borderColor: theme.onPhoto, backgroundColor: theme.surface, marginTop: i ? -10 : 0 }]}
+                contentFit="cover"
+                accessibilityLabel={`reaction from ${displayName(r.username)}`}
+              />
+            ))
+          ) : (
+            <View style={[styles.face, styles.noFace, { borderColor: theme.onPhoto }]} />
+          )}
+          <Text style={[styles.actionLabel, onPhoto]}>{post.reaction_count}</Text>
+        </View>
+
+        {url ? (
+          <Pressable onPress={() => sharePhoto(url, post.id).catch(() => {})} accessibilityRole="button" accessibilityLabel="share" style={styles.action}>
+            <Icon name="share" color={theme.onPhoto} size={30} weight={2} />
+            <Text style={[styles.actionLabel, onPhoto]}>share</Text>
+          </Pressable>
+        ) : null}
+
+        {!isMine ? (
+          <Pressable onPress={() => onMore(post)} accessibilityRole="button" accessibilityLabel="more" hitSlop={10} style={styles.action}>
+            <Icon name="dots" color={theme.onPhoto} size={28} />
+          </Pressable>
         ) : null}
       </View>
 
-      <View style={[styles.band, styles.bottomBand, { backgroundColor: theme.photoScrim }]}>
-        <View style={styles.row}>
-          <Pressable
-            onPress={() => router.push({ pathname: '/user/[id]', params: { id: post.user_id } })}
-            accessibilityRole="link"
-            hitSlop={8}>
-            <Text variant="bodyStrong" style={onPhoto}>
-              {isMine ? 'you' : displayName(post.username)}
-            </Text>
-          </Pressable>
-          {!isMine ? (
-            <Pressable onPress={() => onFollow(post)} accessibilityRole="button" hitSlop={10}>
-              <Text style={[onPhoto, styles.link]}>{post.following ? 'following' : 'follow'}</Text>
-            </Pressable>
-          ) : null}
-          <Text variant="caption" style={[onPhoto, styles.push]}>
-            +{post.points} · {lateLabel(minutesBetween(challenge.opens_at, post.created_at))}
-          </Text>
-        </View>
+      <View style={styles.caption}>
+        <Pressable onPress={openProfile} accessibilityRole="link" hitSlop={6}>
+          <Text style={[styles.name, onPhoto]}>{isMine ? 'you' : displayName(post.username)}</Text>
+        </Pressable>
         {post.caption ? (
           <Text style={onPhoto} numberOfLines={3}>
             {post.caption}
           </Text>
         ) : null}
-        <View style={[styles.row, styles.reactionsRow]}>
-          <View style={styles.faces}>
-            {shown.map((r, i) => (
-              <Image
-                key={r.image_path}
-                source={urls[r.image_path] ? { uri: urls[r.image_path] } : undefined}
-                style={[styles.face, { borderColor: theme.onPhoto, backgroundColor: theme.surface, marginLeft: i ? -10 : 0 }]}
-                contentFit="cover"
-                accessibilityLabel={`reaction from ${displayName(r.username)}`}
-              />
-            ))}
-            <Text variant="caption" style={[onPhoto, shown.length ? styles.facesText : null]}>
-              {post.reaction_count === 0 ? 'no reactions yet' : more > 0 ? `+${more}` : ''}
-            </Text>
-          </View>
-          {isMine ? (
-            url ? (
-              <Pressable onPress={() => sharePhoto(url, post.id).catch(() => {})} accessibilityRole="button" hitSlop={12}>
-                <Text style={[onPhoto, styles.strong]}>share</Text>
-              </Pressable>
-            ) : null
-          ) : (
-            <View style={styles.row}>
-              <Pressable onPress={() => onReact(post)} accessibilityRole="button" hitSlop={12}>
-                <Text style={[onPhoto, styles.strong]}>{post.my_reaction ? 'react again' : 'react'}</Text>
-              </Pressable>
-              <Pressable onPress={() => onMore(post)} accessibilityRole="button" accessibilityLabel="more" hitSlop={12}>
-                <Text style={onPhoto}>···</Text>
-              </Pressable>
-            </View>
-          )}
+        <View style={[styles.points, { backgroundColor: theme.onPhoto }]}>
+          <Text style={[styles.pointsText, { color: theme.onText }]}>
+            +{post.points} pts · {lateLabel(minutesBetween(challenge.opens_at, post.created_at))}
+          </Text>
         </View>
       </View>
     </Pressable>
@@ -469,39 +473,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.gutter,
   },
   centerText: { textAlign: 'center' },
-  cta: { marginTop: space.lg, minWidth: 200 },
-  top: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: layout.gutter,
-    paddingBottom: space.md,
-  },
-  band: { position: 'absolute', left: space.md, right: space.md, borderRadius: radius.md, padding: space.md, gap: space.xs },
-  challengeBand: { top: 72 },
-  bottomBand: { bottom: space.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  push: { marginLeft: 'auto' },
-  link: { fontFamily: fonts.bodySemiBold, textDecorationLine: 'underline' },
-  strong: { fontFamily: fonts.bodySemiBold },
-  reactionsRow: { justifyContent: 'space-between', marginTop: space.xs },
-  faces: { flexDirection: 'row', alignItems: 'center' },
-  face: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5 },
-  facesText: { marginLeft: space.sm },
-  // Over photos the normal button can vanish into the picture, so this one sits on the scrim.
-  floating: {
-    position: 'absolute',
-    right: layout.gutter,
-    bottom: 170,
-    minHeight: 54,
-    paddingHorizontal: space.xl,
-    borderRadius: radius.pill,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  floatingLabel: { fontFamily: fonts.bodySemiBold, fontSize: 16 },
+  cta: { marginTop: space.lg, minWidth: 220 },
+  top: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: layout.gutter, gap: space.md },
+  pills: { alignItems: 'center', gap: space.sm },
+  pill: { maxWidth: '100%', paddingHorizontal: space.lg, paddingVertical: 7, borderRadius: radius.pill },
+  pillText: { fontFamily: fonts.bodyBold },
+  shadow: { textShadowRadius: 6, textShadowOffset: { width: 0, height: 1 } },
+  side: { position: 'absolute', right: space.md, bottom: space.xl, alignItems: 'center', gap: space.xl },
+  author: { alignItems: 'center', marginBottom: space.sm },
+  followBadge: { position: 'absolute', bottom: -10, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  action: { alignItems: 'center', gap: 3 },
+  actionLabel: { fontFamily: fonts.bodyBold, fontSize: 12, lineHeight: 15 },
+  face: { width: 32, height: 32, borderRadius: 16, borderWidth: 2 },
+  noFace: { borderStyle: 'dashed' },
+  caption: { position: 'absolute', left: space.lg, right: 92, bottom: space.xl, gap: space.sm, alignItems: 'flex-start' },
+  name: { fontFamily: fonts.bodyHeavy, fontSize: 18, lineHeight: 23 },
+  points: { borderRadius: radius.sm + 4, paddingHorizontal: space.sm, paddingVertical: 4 },
+  pointsText: { fontFamily: fonts.bodyHeavy, fontSize: 12, lineHeight: 15, letterSpacing: 0.3, textTransform: 'uppercase' },
   menu: {
     position: 'absolute',
     left: 0,
@@ -509,7 +497,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     padding: layout.gutter,
     gap: space.md,
-    borderTopLeftRadius: radius.md,
-    borderTopRightRadius: radius.md,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
   },
 });

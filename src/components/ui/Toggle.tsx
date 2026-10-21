@@ -9,11 +9,11 @@ type ToggleProps<T extends string> = {
   options: readonly T[];
   value: T;
   onChange: (value: T) => void;
-  /** Draw for a photo background (light text). */
+  /** Draw for a photo background (white text with a soft shadow). */
   onPhoto?: boolean;
 };
 
-/** Two or three quiet words; the chosen one is bold. "global  friends". */
+/** Bold words with a bar under the chosen one, like "friends | global" on TikTok. */
 export function Toggle<T extends string>({ options, value, onChange, onPhoto }: ToggleProps<T>) {
   const theme = useTheme();
   const color = onPhoto ? theme.onPhoto : theme.text;
@@ -31,10 +31,10 @@ export function Toggle<T extends string>({ options, value, onChange, onPhoto }: 
             }}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
-            hitSlop={8}>
-            <Text style={{ color, opacity: selected ? 1 : 0.55, fontFamily: selected ? fonts.bodySemiBold : fonts.body, fontSize: 16 }}>
-              {option}
-            </Text>
+            hitSlop={10}
+            style={styles.item}>
+            <Text style={[styles.label, onPhoto && [styles.shadow, { textShadowColor: theme.photoShadow }], { color, opacity: selected ? 1 : 0.6 }]}>{option}</Text>
+            <View style={[styles.bar, { backgroundColor: selected ? color : 'transparent' }]} />
           </Pressable>
         );
       })}
@@ -43,5 +43,9 @@ export function Toggle<T extends string>({ options, value, onChange, onPhoto }: 
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: space.xl },
+  row: { flexDirection: 'row', gap: space.xl, justifyContent: 'center' },
+  item: { alignItems: 'center', gap: 6 },
+  label: { fontFamily: fonts.bodyBold, fontSize: 17, lineHeight: 22 },
+  shadow: { textShadowRadius: 6, textShadowOffset: { width: 0, height: 1 } },
+  bar: { width: 28, height: 3, borderRadius: 2 },
 });

@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 54,
     borderWidth: 1.5,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     paddingHorizontal: space.lg,
     fontFamily: fonts.body,
     fontSize: 17,

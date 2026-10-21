@@ -1,9 +1,9 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Field, Text } from '@/components/ui';
+import { Avatar, Icon, Text } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { haptic } from '@/lib/haptics';
 import {
@@ -17,7 +17,7 @@ import {
   type Message,
 } from '@/lib/social';
 import { chatTime, displayName, MESSAGE_MAX, normalizeMessage } from '@/social/rules';
-import { fonts, layout, radius, space, useTheme } from '@/theme';
+import { fonts, radius, space, useTheme } from '@/theme';
 
 /** Realtime brings new messages at once; this is a fallback if it drops. */
 const POLL_MS = 10_000;
@@ -94,19 +94,28 @@ export default function ChatScreen() {
       style={[styles.root, { backgroundColor: theme.background, paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={[styles.bar, { borderBottomColor: theme.border }]}>
-        <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/chats'))} accessibilityRole="button" hitSlop={12}>
-          <Text color="textMuted">back</Text>
+        <Pressable
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/chats'))}
+          accessibilityRole="button"
+          accessibilityLabel="back"
+          hitSlop={12}>
+          <Icon name="back" color={theme.text} size={28} weight={2.2} />
         </Pressable>
         <Pressable
           onPress={() => id && router.push({ pathname: '/user/[id]', params: { id } })}
           accessibilityRole="link"
-          hitSlop={12}
+          hitSlop={8}
           style={styles.title}>
-          <Text style={{ fontFamily: fonts.bodySemiBold }} numberOfLines={1}>
-            {displayName(name)}
-          </Text>
+          <Avatar name={name} size={36} />
+          <View style={styles.titleText}>
+            <Text style={{ fontFamily: fonts.bodyBold }} numberOfLines={1}>
+              {displayName(name).replace(/^@/, '')}
+            </Text>
+            <Text variant="caption" color="textMuted" numberOfLines={1}>
+              {friends ? 'friends' : 'not friends anymore'}
+            </Text>
+          </View>
         </Pressable>
-        <View style={styles.barSide} />
       </View>
 
       <FlatList
@@ -123,49 +132,55 @@ export default function ChatScreen() {
         }
         renderItem={({ item, index }) => {
           const mine = item.sender_id === userId;
+          // The list is newest first: index - 1 is the next message down, index + 1 the one above.
           const older = messages?.[index + 1];
+          const newer = messages?.[index - 1];
           const showTime = !older || new Date(item.created_at).getTime() - new Date(older.created_at).getTime() > 10 * 60_000;
+          const lastOfRun = !newer || newer.sender_id !== item.sender_id;
           return (
-            <View style={[styles.message, mine ? styles.mine : styles.theirs]}>
+            <View>
               {showTime ? (
                 <Text variant="caption" color="textMuted" style={styles.time}>
                   {chatTime(item.created_at, new Date())}
                 </Text>
               ) : null}
-              <View style={[styles.bubble, mine ? { backgroundColor: theme.text } : { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: StyleSheet.hairlineWidth }]}>
-                <Text style={{ color: mine ? theme.onText : theme.text }}>{item.body}</Text>
+              <View style={[styles.message, mine ? styles.mine : styles.theirs]}>
+                {!mine ? <View style={styles.faceSlot}>{lastOfRun ? <Avatar name={name} size={28} /> : null}</View> : null}
+                <View style={[styles.bubble, { backgroundColor: mine ? theme.text : theme.border }]}>
+                  <Text style={{ color: mine ? theme.onText : theme.text }}>{item.body}</Text>
+                </View>
               </View>
             </View>
           );
         }}
       />
 
-      <View style={[styles.composer, { borderTopColor: theme.border, paddingBottom: insets.bottom + space.sm }]}>
+      <View style={[styles.composer, { paddingBottom: insets.bottom + space.sm }]}>
         {error && messages ? (
           <Text variant="caption" color="textMuted">
             {error}
           </Text>
         ) : null}
         {friends ? (
-          <View style={styles.inputRow}>
-            <Field
+          <View style={[styles.inputPill, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <TextInput
               value={draft}
               onChangeText={setDraft}
-              placeholder="message"
+              placeholder="message…"
+              placeholderTextColor={theme.textMuted}
+              selectionColor={theme.text}
               maxLength={MESSAGE_MAX}
-              multiline
-              style={styles.input}
+              // A web textarea starts two rows tall; one line is enough there.
+              multiline={Platform.OS !== 'web'}
+              onSubmitEditing={send}
+              style={[styles.input, { color: theme.text }, Platform.OS === 'web' && styles.webInput]}
               accessibilityLabel="message"
             />
-            <Pressable
-              onPress={send}
-              disabled={!canSend}
-              accessibilityRole="button"
-              accessibilityLabel="send"
-              accessibilityState={{ disabled: !canSend }}
-              style={({ pressed }) => [styles.send, { backgroundColor: theme.text, opacity: !canSend ? 0.4 : pressed ? 0.75 : 1 }]}>
-              <Text style={{ color: theme.onText, fontFamily: fonts.bodySemiBold }}>{sending ? '…' : 'send'}</Text>
-            </Pressable>
+            {canSend || sending ? (
+              <Pressable onPress={send} disabled={!canSend} accessibilityRole="button" accessibilityLabel="send" hitSlop={10}>
+                <Text style={{ fontFamily: fonts.bodyBold, color: theme.text, opacity: sending ? 0.5 : 1 }}>send</Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : (
           <Text color="textMuted">you are not friends anymore. follow each other to talk again.</Text>
@@ -178,24 +193,35 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   bar: {
-    height: 56,
-    paddingHorizontal: layout.gutter,
+    height: 60,
+    paddingHorizontal: space.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  title: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.md },
+  titleText: { flex: 1 },
+  list: { flexGrow: 1, paddingHorizontal: space.md, paddingVertical: space.lg, gap: 3 },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', transform: [{ scaleY: -1 }] },
+  time: { textAlign: 'center', marginVertical: space.md },
+  message: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm, maxWidth: '82%' },
+  mine: { alignSelf: 'flex-end' },
+  theirs: { alignSelf: 'flex-start' },
+  faceSlot: { width: 28 },
+  bubble: { borderRadius: radius.xl, paddingHorizontal: 14, paddingVertical: 9, flexShrink: 1 },
+  composer: { paddingHorizontal: space.md, paddingTop: space.sm, gap: space.xs },
+  inputPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    minHeight: 48,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    paddingLeft: space.lg,
+    paddingRight: space.lg,
   },
-  title: { flex: 1, alignItems: 'center' },
-  barSide: { width: 36 },
-  list: { flexGrow: 1, paddingHorizontal: layout.gutter, paddingVertical: space.lg, gap: space.xs },
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', transform: [{ scaleY: -1 }] },
-  message: { maxWidth: '80%', gap: space.xxs },
-  mine: { alignSelf: 'flex-end', alignItems: 'flex-end' },
-  theirs: { alignSelf: 'flex-start', alignItems: 'flex-start' },
-  time: { marginTop: space.md },
-  bubble: { borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: space.sm },
-  composer: { paddingHorizontal: layout.gutter, paddingTop: space.sm, borderTopWidth: StyleSheet.hairlineWidth, gap: space.xs },
-  inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm },
-  input: { flex: 1, maxHeight: 120, paddingTop: 15, paddingBottom: 15 },
-  send: { height: 54, paddingHorizontal: space.lg, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  input: { flex: 1, maxHeight: 120, paddingVertical: 12, fontFamily: fonts.body, fontSize: 16 },
+  // The pill already shows focus; drop the browser's focus box.
+  webInput: { outlineStyle: 'none' } as object,
 });

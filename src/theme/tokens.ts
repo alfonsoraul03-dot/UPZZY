@@ -20,6 +20,8 @@ export const palette = {
   butter: '#EAD9A2',
   moss: '#6E7559',
   oops: '#E4572E',
+  black: '#000000',
+  white: '#FFFFFF',
 } as const;
 
 export type ColorTokens = {
@@ -38,7 +40,12 @@ export type ColorTokens = {
   photoScrim: string;
   /** Text on top of a photo scrim. */
   onPhoto: string;
+  /** Soft shadow under white text drawn straight on a photo. */
+  photoShadow: string;
 };
+
+/** Backgrounds for the initial-letter avatars, picked by name. Black text sits on all of them. */
+export const avatarColors = [palette.butter, palette.skyWash, palette.oatmeal, palette.bone, '#C9B8E8', '#B8E0C9'] as const;
 
 export const colors: Record<'light' | 'dark', ColorTokens> = {
   // Chalk rather than Bone as the page so Oops Orange keeps 3:1 contrast.
@@ -52,17 +59,20 @@ export const colors: Record<'light' | 'dark', ColorTokens> = {
     onText: palette.bone,
     photoScrim: 'rgba(30, 29, 27, 0.7)',
     onPhoto: palette.chalk,
+    photoShadow: 'rgba(0, 0, 0, 0.45)',
   },
+  // The app is dark, like BeReal and TikTok: photos carry the colour.
   dark: {
-    background: palette.deepBlack,
-    surface: palette.washedBlack,
-    border: '#45423E',
-    text: palette.bone,
-    textMuted: palette.dust,
+    background: palette.black,
+    surface: '#141414',
+    border: '#262626',
+    text: palette.white,
+    textMuted: '#8E8E8E',
     oops: palette.oops,
-    onText: palette.washedBlack,
-    photoScrim: 'rgba(30, 29, 27, 0.7)',
-    onPhoto: palette.chalk,
+    onText: palette.black,
+    photoScrim: 'rgba(0, 0, 0, 0.55)',
+    onPhoto: palette.white,
+    photoShadow: 'rgba(0, 0, 0, 0.45)',
   },
 };
 
@@ -83,6 +93,8 @@ export const radius = {
   none: 0,
   sm: 2,
   md: 6,
+  lg: 14,
+  xl: 22,
   pill: 999,
 } as const;
 
@@ -94,15 +106,19 @@ export const fonts = {
   body: 'Inter_400Regular',
   bodyMedium: 'Inter_500Medium',
   bodySemiBold: 'Inter_600SemiBold',
+  bodyBold: 'Inter_700Bold',
+  bodyHeavy: 'Inter_800ExtraBold',
   mono: 'JetBrainsMono_500Medium',
 } as const;
 
 export const type = {
   /** Big numbers: scores, streaks. */
   number: { fontFamily: fonts.display, fontSize: 64, lineHeight: 64, letterSpacing: -1 },
-  title: { fontFamily: fonts.bodySemiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.3 },
+  /** Big screen titles: "messages", "october". */
+  heading: { fontFamily: fonts.bodyHeavy, fontSize: 30, lineHeight: 34, letterSpacing: -0.8 },
+  title: { fontFamily: fonts.bodyHeavy, fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
   body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 23 },
-  bodyStrong: { fontFamily: fonts.bodyMedium, fontSize: 16, lineHeight: 23 },
+  bodyStrong: { fontFamily: fonts.bodyBold, fontSize: 16, lineHeight: 23 },
   caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
   label: { fontFamily: fonts.mono, fontSize: 11, lineHeight: 14, letterSpacing: 1 },
 } as const;
@@ -112,5 +128,5 @@ export type TypeVariant = keyof typeof type;
 export const layout = {
   gutter: space.xl,
   maxContentWidth: 560,
-  tabBarHeight: 60,
+  tabBarHeight: 62,
 } as const;
