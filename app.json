@@ -62,6 +62,13 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "backgroundColor": "#000000"
+    "backgroundColor": "#000000",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "15454480-339f-4089-b552-b9866ad4b1c2"
+      }
+    },
+    "owner": "upzzy"
   }
 }
