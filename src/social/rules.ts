@@ -100,3 +100,26 @@ export function shortDay(day: string): string {
 export function streakLabel(days: number): string {
   return days === 1 ? '1 day streak' : `${days} day streak`;
 }
+
+/** Keep in sync with the `messages.body` check in supabase/migrations. */
+export const MESSAGE_MAX = 1000;
+
+/** Trims a message; `null` when there is nothing to send. */
+export function normalizeMessage(input: string): string | null {
+  const value = input.trim();
+  return value ? value.slice(0, MESSAGE_MAX) : null;
+}
+
+const madridDay = (date: Date) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+
+/** "now", "14:05" for today, "oct 19" before that. Madrid time. */
+export function chatTime(at: string | Date, now: Date): string {
+  const date = new Date(at);
+  if (now.getTime() - date.getTime() < 60_000) return 'now';
+  const day = madridDay(date);
+  if (day === madridDay(now)) {
+    return new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit' }).format(date);
+  }
+  return shortDay(day);
+}

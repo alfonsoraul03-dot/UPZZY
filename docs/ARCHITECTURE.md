@@ -34,11 +34,16 @@ Backend (supabase/)          Postgres + RLS + funciones SQL / Edge Functions
 | `post_likes` | Likes (de momento sin uso en la app) |
 | `follows` | A quién sigues; el feed "friends" sale de aquí |
 | `post_reports` | Reportes; con 3 la foto se oculta sola y se registra |
-| `user_blocks` | Personas bloqueadas; sus fotos desaparecen de tu feed |
+| `user_blocks` | Personas bloqueadas; sus fotos desaparecen de tu feed y no os podéis escribir |
+| `messages` | Mensajes privados entre amigos; solo los leen las dos personas y solo se escriben con `send_message` |
 
 Fotos: bucket privado `oops` (máx. 5 MB, solo JPEG). Cada usuario solo sube a su carpeta, y una foto solo se puede ver si su post es visible. El feed pide enlaces temporales (1 hora).
 
 Reglas que comprueba el servidor (`submit_post`): que el challenge sea el de hoy y ya haya salido, que la foto esté subida en tu carpeta y que no hayas publicado ya hoy. La app solo abre la cámara (nunca la galería), pero el servidor no puede demostrar que una foto es nueva ni que lleva ropa UPZZY: cualquier premio necesita revisión humana.
+
+Mensajes (`send_message`): solo entre amigos (os seguís los dos), nunca si uno ha bloqueado al otro, de 1 a 1000 caracteres y como mucho 30 por minuto. `my_chats` da la lista de conversaciones con los no leídos y `mark_read` los marca. Los mensajes nuevos llegan con Supabase Realtime; si falla, la conversación se refresca cada 10 segundos.
+
+Entrar sin email: en desarrollo (`__DEV__`) la pantalla de login tiene "skip email (dev only)", que crea una cuenta anónima de Supabase. No aparece en la app publicada.
 
 Lecturas: `today_challenge` (oculta el título hasta la hora), `latest_challenge`, `challenge_feed`, `user_stats` (racha y puntos) y `monthly_ranking`.
 

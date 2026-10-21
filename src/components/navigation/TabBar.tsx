@@ -10,10 +10,11 @@ import { fonts, layout, useTheme } from '@/theme';
 export const TABS: Record<string, string> = {
   index: 'home',
   ranking: 'ranking',
+  chats: 'chats',
   you: 'you',
 };
 
-/** Three quiet lowercase words. The active one gets a small dot under it. */
+/** Four quiet lowercase words. The active one gets a small dot under it. */
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();

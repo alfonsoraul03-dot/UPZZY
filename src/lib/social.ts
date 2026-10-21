@@ -3,7 +3,7 @@ import * as Linking from 'expo-linking';
 import * as Sharing from 'expo-sharing';
 import { Platform, Share } from 'react-native';
 
-import { normalizeCaption, photoPath, reactionPath, type FeedPost, type FeedScope } from '@/social/rules';
+import { normalizeCaption, normalizeMessage, photoPath, reactionPath, type FeedPost, type FeedScope } from '@/social/rules';
 
 import { parseAuthLink } from './authLink';
 import { supabase } from './supabase';
@@ -45,6 +45,18 @@ export type RankRow = { rank: number; user_id: string; username: string | null; 
 
 export type Profile = { id: string; username: string };
 
+export type Message = { id: string; sender_id: string; recipient_id: string; body: string; created_at: string; read_at: string | null };
+
+export type Chat = {
+  user_id: string;
+  username: string | null;
+  last_body: string | null;
+  last_at: string | null;
+  last_from_me: boolean;
+  unread: number;
+  is_friend: boolean;
+};
+
 const BUCKET = 'oops';
 
 function client() {
@@ -59,6 +71,9 @@ export function friendlyError(error: unknown): string {
   if (e?.code === 'over_email_send_rate_limit' || (e as { status?: number } | null)?.status === 429) {
     return 'too many emails for now. try again in an hour.';
   }
+  if (e?.code === '54000') return 'slow down a little.';
+  if (e?.message === 'You can only message friends') return 'only friends can message each other.';
+  if (e?.code === 'anonymous_provider_disabled') return 'turn on anonymous sign-ins in supabase first.';
   if (e?.message?.includes('This challenge is closed')) return 'this challenge closed. new one is up.';
   if (e?.message === 'not connected') return 'not connected yet.';
   if (e?.message?.toLowerCase().includes('network')) return 'no connection. try again.';
@@ -239,6 +254,15 @@ export async function completeAuthLink(url: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Development only: enter without an email to try the app. Creates a real but
+ * anonymous account. Needs "Allow anonymous sign-ins" on in Supabase.
+ */
+export async function signInWithoutEmail(): Promise<void> {
+  const { error } = await client().auth.signInAnonymously();
+  if (error) throw error;
+}
+
 export async function signOut(): Promise<void> {
   await client().auth.signOut();
 }
@@ -262,4 +286,60 @@ export async function sharePhoto(url: string, postId: string): Promise<void> {
   }
   const file = await File.downloadFileAsync(url, new File(Paths.cache, `upzzy-${postId}.jpg`), { idempotent: true });
   await Sharing.shareAsync(file.uri, { mimeType: 'image/jpeg', UTI: 'public.jpeg', dialogTitle: message });
+}
+
+/** Friends follow each other. Only friends can message. */
+export async function areFriends(me: string, other: string): Promise<boolean> {
+  const { data, error } = await client().rpc('are_friends', { a: me, b: other });
+  if (error) throw error;
+  return !!data;
+}
+
+/** Your conversations, newest first, then friends you have not talked to yet. */
+export async function getChats(): Promise<Chat[]> {
+  const { data, error } = await client().rpc('my_chats');
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** The latest messages between you and `other`, newest first. */
+export async function getMessages(me: string, other: string, limit = 50): Promise<Message[]> {
+  const { data, error } = await client()
+    .from('messages')
+    .select('id, sender_id, recipient_id, body, created_at, read_at')
+    .or(`and(sender_id.eq.${me},recipient_id.eq.${other}),and(sender_id.eq.${other},recipient_id.eq.${me})`)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function sendMessage(to: string, body: string): Promise<Message> {
+  const text = normalizeMessage(body);
+  if (!text) throw new Error('empty');
+  const { data, error } = await client().rpc('send_message', { p_to: to, p_body: text });
+  if (error) throw error;
+  return data as Message;
+}
+
+export async function markRead(from: string): Promise<void> {
+  const { error } = await client().rpc('mark_read', { p_from: from });
+  if (error) throw error;
+}
+
+let channels = 0;
+
+/** Calls `onMessage` when someone sends you a message (Supabase Realtime). Returns a stop function. */
+export function onNewMessage(me: string, onMessage: (message: Message) => void): () => void {
+  if (!supabase) return () => {};
+  const db = supabase;
+  const channel = db
+    .channel(`messages-${me}-${++channels}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `recipient_id=eq.${me}` }, (payload) =>
+      onMessage(payload.new as Message),
+    )
+    .subscribe();
+  return () => {
+    db.removeChannel(channel);
+  };
 }

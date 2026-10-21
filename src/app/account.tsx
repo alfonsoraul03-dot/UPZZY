@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button, Field, Sheet, Text } from '@/components/ui';
 import { useAuthLinks } from '@/hooks/useAuthLinks';
 import { useSession } from '@/hooks/useSession';
-import { deleteAccount, friendlyError, getMyProfile, sendLoginCode, setUsername, signOut, verifyLoginCode } from '@/lib/social';
+import { deleteAccount, friendlyError, getMyProfile, sendLoginCode, setUsername, signInWithoutEmail, signOut, verifyLoginCode } from '@/lib/social';
 import { isEmail, isLoginCode, isPlaceholderUsername } from '@/social/rules';
 import { normalizeUsername, validateUsername } from '@/lib/validation';
 import { space } from '@/theme';
@@ -47,6 +47,18 @@ function SignIn({ linkProblem }: { linkProblem: string | null }) {
     }
   };
 
+  // Only in development builds: try the app without waiting for an email.
+  const skip = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await signInWithoutEmail();
+    } catch (e) {
+      setError(friendlyError(e));
+      setBusy(false);
+    }
+  };
+
   const verify = async () => {
     setBusy(true);
     setError(null);
@@ -77,6 +89,7 @@ function SignIn({ linkProblem }: { linkProblem: string | null }) {
             accessibilityLabel="email"
           />
           <Button label={busy ? 'sending…' : 'send code'} onPress={send} disabled={busy || !isEmail(email)} />
+          {__DEV__ ? <Button label="skip email (dev only)" variant="outline" onPress={skip} disabled={busy} /> : null}
         </>
       ) : (
         <>
@@ -111,6 +124,7 @@ function SignIn({ linkProblem }: { linkProblem: string | null }) {
 }
 
 function SignedIn({ userId }: { userId: string }) {
+  const { session } = useSession();
   const [username, setName] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [loaded, setLoaded] = useState(false);
@@ -187,6 +201,9 @@ function SignedIn({ userId }: { userId: string }) {
   return (
     <Sheet title="you">
       <Text variant="title">@{username}</Text>
+      {session?.user.is_anonymous ? (
+        <Text color="textMuted">test account with no email. if you sign out it is gone.</Text>
+      ) : null}
       <View style={styles.actions}>
         <Button label="sign out" variant="outline" onPress={() => signOut()} disabled={busy} />
         {confirmDelete ? (

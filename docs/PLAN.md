@@ -20,12 +20,13 @@ Reglas (todas en el servidor):
 
 1. ✓ Fotos con la cámara, feed global y amigos, seguir, reportar, bloquear, borrar cuenta.
 2. ✓ Challenge a hora al azar, puntos por rapidez, reacciones con selfie, perfil, racha, ranking.
-3. **Notificación** cuando sale el challenge ("the oops is out. 2 min for 100 pts.").
-4. **Email propio** (Resend) para que el login funcione para todo el mundo.
-5. Premios: racha de 100 días y ganador del mes, revisados por una persona.
-6. Comentarios, First 100, Drops con reservas, Creator Club.
+3. ✓ Mensajes entre amigos (os seguís los dos). Botón "skip email (dev only)" para probar sin email mientras desarrollamos.
+4. **Notificación** cuando sale el challenge ("the oops is out. 2 min for 100 pts.").
+5. **Email propio** (Resend) para que el login funcione para todo el mundo.
+6. Premios: racha de 100 días y ganador del mes, revisados por una persona.
+7. Comentarios, First 100, Drops con reservas, Creator Club.
 
 ## Base técnica que ya existe
 
 - Expo SDK 57 + TypeScript + Expo Router.
-- Supabase: perfiles, roles, registro de auditoría, challenges, fotos, reacciones, puntos, seguir, reportes y bloqueos, con tests de seguridad (`npm run test:db`).
+- Supabase: perfiles, roles, registro de auditoría, challenges, fotos, reacciones, puntos, seguir, mensajes, reportes y bloqueos, con tests de seguridad (`npm run test:db`).

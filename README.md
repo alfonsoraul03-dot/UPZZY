@@ -61,8 +61,9 @@ La app necesita Supabase: mira la sección siguiente. Sin Supabase verás "not c
    upzzy://**
    ```
    La primera es para probar con Expo Go; la segunda, para la app publicada. Abre el email **en el móvil** y toca el enlace: se abre la app y ya estás dentro.
-6. Reinicia Expo con `npx expo start --clear` para que lea el `.env`.
-7. Para hacerte administrador, regístrate en la app y luego abre **SQL Editor** en Supabase y ejecuta:
+6. Mientras desarrollas puedes entrar sin email: en **Authentication → Sign In / Providers** activa **Allow anonymous sign-ins** y en la app toca **skip email (dev only)**. Ese botón solo sale en desarrollo, nunca en la app publicada.
+7. Reinicia Expo con `npx expo start --clear` para que lea el `.env`.
+8. Para hacerte administrador, regístrate en la app y luego abre **SQL Editor** en Supabase y ejecuta:
    ```sql
    insert into public.user_roles (user_id, role)
    select id, 'admin' from auth.users where email = 'TU_EMAIL';
@@ -96,11 +97,12 @@ npm run test:db     # aplica las migraciones a un Postgres temporal y prueba la 
 
 ```
 src/app/            pantallas (Expo Router)
-  (tabs)/           home (feed), ranking, you (perfil)
+  (tabs)/           home (feed), ranking, chats, you (perfil)
   account.tsx       login, nombre, cerrar sesión, borrar cuenta
   capture.tsx       foto del challenge (solo cámara)
   react.tsx         reacción con selfie
   user/[id].tsx     perfil de otra persona
+  chat/[id].tsx     conversación con un amigo
   drop.tsx          tienda (drop 001)
 src/social/         reglas del challenge y del feed, con tests
 src/components/     tablero, logo y componentes de interfaz
