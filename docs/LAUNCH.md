@@ -71,7 +71,7 @@ npx eas-cli@latest device:create
 npx eas-cli@latest build --profile development --platform ios
 ```
 
-Instálala desde el enlace que te da EAS y abre `npx expo start`. Prueba esto:
+Instálala desde el enlace que te da EAS y abre `npx expo start` (sin `--go`: así el QR es para la app instalada). Prueba esto:
 
 - entrar con Apple y con Google;
 - meter un código;
