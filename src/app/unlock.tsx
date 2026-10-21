@@ -13,6 +13,7 @@ const PROBLEMS: Record<Exclude<RedeemResult, 'ok'>, string> = {
   unknown: "that code doesn't exist. check it again.",
   used: 'that code was already used.',
   wait: 'too many tries. wait an hour.',
+  banned: 'this account was closed for breaking the rules.',
 };
 
 /** The door: upzzy is for people who bought a piece. The code comes in the package. */

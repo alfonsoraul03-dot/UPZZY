@@ -391,6 +391,37 @@ export async function reviewPost(postId: string, hasUpzzy: boolean): Promise<voi
   if (error) throw error;
 }
 
+export type ReportedPost = {
+  post_id: string;
+  user_id: string;
+  username: string | null;
+  image_path: string;
+  caption: string | null;
+  status: 'visible' | 'hidden' | 'removed';
+  reports: number;
+  reasons: string[];
+  first_report_at: string;
+};
+
+/** Staff: reported photos nobody has looked at yet, oldest first. */
+export async function getReportQueue(): Promise<ReportedPost[]> {
+  const { data, error } = await client().rpc('report_queue');
+  if (error) throw error;
+  return (data as ReportedPost[] | null) ?? [];
+}
+
+/** Staff: keep a reported photo up, or take it down. The server logs it. */
+export async function moderatePost(postId: string, keep: boolean): Promise<void> {
+  const { error } = await client().rpc('moderate_post', { p_post_id: postId, p_status: keep ? 'visible' : 'removed' });
+  if (error) throw error;
+}
+
+/** Staff: ban the person. All their photos come down and no code lets them back in. */
+export async function banUser(userId: string, reason: string): Promise<void> {
+  const { error } = await client().rpc('ban_user', { p_user_id: userId, p_reason: reason });
+  if (error) throw error;
+}
+
 /** Only people who bought a piece get in: members (code redeemed) and staff. */
 export async function hasAccess(): Promise<boolean> {
   const { data, error } = await client().rpc('has_access');
@@ -398,7 +429,7 @@ export async function hasAccess(): Promise<boolean> {
   return !!data;
 }
 
-export type RedeemResult = 'ok' | 'used' | 'unknown' | 'wait';
+export type RedeemResult = 'ok' | 'used' | 'unknown' | 'wait' | 'banned';
 
 /** Unlocks the account with the one-time code from the package. The server checks and spends it. */
 export async function redeemCode(code: string): Promise<RedeemResult> {

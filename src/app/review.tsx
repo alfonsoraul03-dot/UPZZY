@@ -3,34 +3,36 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Sheet, Text } from '@/components/ui';
+import { Button, Sheet, Text, Toggle } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
-import { friendlyError, getPendingPosts, isStaff, photoUrls, reviewPost, type PendingPost } from '@/lib/social';
+import {
+  banUser,
+  friendlyError,
+  getPendingPosts,
+  getReportQueue,
+  isStaff,
+  moderatePost,
+  photoUrls,
+  reviewPost,
+  type PendingPost,
+  type ReportedPost,
+} from '@/lib/social';
+import { displayName } from '@/social/rules';
 import { radius, space, useTheme } from '@/theme';
 
+const TABS = ['reports', 'upzzy check'] as const;
+type Tab = (typeof TABS)[number];
+
 /**
- * Staff only: check each photo for an UPZZY piece. Approved photos earn their
- * points and likes; turned-down ones earn nothing. The server checks the role.
+ * Staff only. Reports: act on every reported photo (keep it, take it down, or
+ * ban the person). Upzzy check: approved photos earn their points. The server
+ * checks the role and logs every decision.
  */
 export default function ReviewScreen() {
-  const theme = useTheme();
   const { userId, ready } = useSession();
   const [allowed, setAllowed] = useState<boolean | null>(null);
-  const [queue, setQueue] = useState<PendingPost[] | null>(null);
-  const [urls, setUrls] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<Tab>('reports');
   const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const list = await getPendingPosts();
-      setUrls(await photoUrls(list.map((p) => p.image_path)));
-      setQueue(list);
-      setError(null);
-    } catch (e) {
-      setError(friendlyError(e));
-    }
-  }, []);
 
   useEffect(() => {
     if (!ready) return;
@@ -38,14 +40,128 @@ export default function ReviewScreen() {
       router.replace('/account');
       return;
     }
-    isStaff().then(
-      (ok) => {
-        setAllowed(ok);
-        if (ok) load();
-      },
-      (e) => setError(friendlyError(e)),
+    isStaff().then(setAllowed, (e) => setError(friendlyError(e)));
+  }, [ready, userId]);
+
+  if (allowed === false) {
+    return (
+      <Sheet title="staff">
+        <Text variant="title">staff only.</Text>
+      </Sheet>
     );
-  }, [ready, userId, load]);
+  }
+
+  return (
+    <Sheet title="staff">
+      <Toggle options={TABS} value={tab} onChange={setTab} />
+      {error ? <Text color="textMuted">{error}</Text> : null}
+      {allowed ? tab === 'reports' ? <Reports /> : <UpzzyCheck /> : null}
+    </Sheet>
+  );
+}
+
+function usePhotos<T>(load: () => Promise<T[]>, path: (item: T) => string) {
+  const [queue, setQueue] = useState<T[] | null>(null);
+  const [urls, setUrls] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      const list = await load();
+      setUrls(await photoUrls(list.map(path)));
+      setQueue(list);
+      setError(null);
+    } catch (e) {
+      setError(friendlyError(e));
+    }
+  }, [load, path]);
+
+  useEffect(() => {
+    load()
+      .then(async (list) => {
+        setUrls(await photoUrls(list.map(path)));
+        setQueue(list);
+      })
+      .catch((e) => setError(friendlyError(e)));
+  }, [load, path]);
+
+  return { queue, setQueue, urls, error, setError, refresh };
+}
+
+const reportPath = (p: ReportedPost) => p.image_path;
+const pendingPath = (p: PendingPost) => p.image_path;
+
+function Photo({ uri }: { uri?: string }) {
+  const theme = useTheme();
+  return (
+    <View style={[styles.photo, { backgroundColor: theme.surface }]}>
+      {uri ? <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityLabel="photo to check" /> : null}
+    </View>
+  );
+}
+
+function Reports() {
+  const { queue, setQueue, urls, error, setError, refresh } = usePhotos(getReportQueue, reportPath);
+  const [busy, setBusy] = useState(false);
+
+  const act = async (post: ReportedPost, action: () => Promise<void>) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await action();
+      // A ban takes down every photo of that person, so drop them all.
+      setQueue((q) => (q ?? []).filter((p) => p.post_id !== post.post_id));
+    } catch (e) {
+      setError(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const post = queue?.[0];
+  if (error && !queue) return <Text color="textMuted">{error}</Text>;
+  if (!queue) return <Text color="textMuted">loading…</Text>;
+  if (!post)
+    return (
+      <>
+        <Text variant="title">no reports.</Text>
+        <Button label="look again" variant="outline" onPress={refresh} />
+      </>
+    );
+  return (
+    <>
+      <Text color="textMuted">
+        {queue.length} to check · act within 24 hours
+      </Text>
+      <Photo uri={urls[post.image_path]} />
+      <Text variant="bodyStrong">
+        {displayName(post.username)} · {post.reports} {post.reports === 1 ? 'report' : 'reports'}: {post.reasons.join(', ')}
+      </Text>
+      {post.status === 'hidden' ? <Text color="textMuted">hidden already after 3 reports.</Text> : null}
+      {post.caption ? <Text>{post.caption}</Text> : null}
+      {error ? <Text color="textMuted">{error}</Text> : null}
+      <View style={styles.row}>
+        <Button label="keep it" variant="outline" onPress={() => act(post, () => moderatePost(post.post_id, true))} disabled={busy} style={styles.half} />
+        <Button label="take it down" onPress={() => act(post, () => moderatePost(post.post_id, false))} disabled={busy} style={styles.half} />
+      </View>
+      <Button
+        label="ban this person"
+        variant="outline"
+        onPress={() =>
+          act(post, async () => {
+            await banUser(post.user_id, post.reasons.join(', '));
+            setQueue((q) => (q ?? []).filter((p) => p.user_id !== post.user_id));
+          })
+        }
+        disabled={busy}
+      />
+    </>
+  );
+}
+
+function UpzzyCheck() {
+  const { queue, setQueue, urls, error, setError, refresh } = usePhotos(getPendingPosts, pendingPath);
+  const [busy, setBusy] = useState(false);
 
   const decide = async (post: PendingPost, hasUpzzy: boolean) => {
     setBusy(true);
@@ -60,44 +176,30 @@ export default function ReviewScreen() {
     }
   };
 
-  if (allowed === false) {
-    return (
-      <Sheet title="upzzy check">
-        <Text variant="title">staff only.</Text>
-      </Sheet>
-    );
-  }
-
   const post = queue?.[0];
+  if (error && !queue) return <Text color="textMuted">{error}</Text>;
+  if (!queue) return <Text color="textMuted">loading…</Text>;
+  if (!post)
+    return (
+      <>
+        <Text variant="title">all checked.</Text>
+        <Button label="look again" variant="outline" onPress={refresh} />
+      </>
+    );
   return (
-    <Sheet title="upzzy check">
+    <>
+      <Text color="textMuted">
+        {queue.length} waiting · +{post.points} pts if approved
+      </Text>
+      <Photo uri={urls[post.image_path]} />
+      {post.caption ? <Text>{post.caption}</Text> : null}
       {error ? <Text color="textMuted">{error}</Text> : null}
-      {!queue ? (
-        <Text color="textMuted">loading…</Text>
-      ) : !post ? (
-        <>
-          <Text variant="title">all checked.</Text>
-          <Button label="look again" variant="outline" onPress={load} />
-        </>
-      ) : (
-        <>
-          <Text color="textMuted">
-            {queue.length} waiting · +{post.points} pts if approved
-          </Text>
-          <View style={[styles.photo, { backgroundColor: theme.surface }]}>
-            {urls[post.image_path] ? (
-              <Image source={{ uri: urls[post.image_path] }} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityLabel="photo to check" />
-            ) : null}
-          </View>
-          {post.caption ? <Text>{post.caption}</Text> : null}
-          <Text variant="title">is an upzzy piece in the photo?</Text>
-          <View style={styles.row}>
-            <Button label="no upzzy" variant="outline" onPress={() => decide(post, false)} disabled={busy} style={styles.half} />
-            <Button label="yes, approve" onPress={() => decide(post, true)} disabled={busy} style={styles.half} />
-          </View>
-        </>
-      )}
-    </Sheet>
+      <Text variant="title">is an upzzy piece in the photo?</Text>
+      <View style={styles.row}>
+        <Button label="no upzzy" variant="outline" onPress={() => decide(post, false)} disabled={busy} style={styles.half} />
+        <Button label="yes, approve" onPress={() => decide(post, true)} disabled={busy} style={styles.half} />
+      </View>
+    </>
   );
 }
 

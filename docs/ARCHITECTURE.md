@@ -69,3 +69,9 @@ Las siguientes tablas se añaden en su paso: racha de 100 días con premio valid
 - `src/lib/oauth.ts`. En iPhone usa la hoja nativa de Apple (`expo-apple-authentication`) con un nonce: Apple firma su SHA-256 y Supabase comprueba el original con `signInWithIdToken`.
 - Google, y Apple fuera del iPhone, usan `signInWithOAuth` y abren el navegador seguro con `WebBrowser.openAuthSessionAsync`. Vuelven a `upzzy://auth` y `completeAuthLink` guarda la sesión.
 - En Supabase: Authentication → Providers → Apple y Google activados, y `upzzy://auth` en Redirect URLs.
+
+## Denuncias y baneos
+
+- `report_queue()` (solo staff): fotos denunciadas que nadie ha mirado desde la última denuncia. `moderate_post` marca `reports_checked_at`.
+- `ban_user` (solo staff, no a otro staff): tabla `bans`, quita todas sus fotos y sus móviles. `has_access()` falla para baneados y `redeem_code` devuelve `banned`. `unban_user` lo deshace. Todo va a `audit_log`.
+- Los términos prometen mirar cada denuncia en menos de 24 horas (lo exige Apple): pantalla staff → reports.

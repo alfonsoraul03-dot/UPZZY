@@ -111,6 +111,9 @@ function SignIn({ linkProblem }: { linkProblem: string | null }) {
           <Button label="continue with google" variant="outline" onPress={() => withProvider('google')} disabled={busy} />
           <Button label="use email instead" variant="outline" onPress={() => setStep('email')} disabled={busy} />
           {__DEV__ ? <Button label="skip (dev only)" variant="outline" onPress={skip} disabled={busy} /> : null}
+          <Text variant="caption" color="textMuted">
+            by going in you agree to the <LegalLink doc="terms" /> and the <LegalLink doc="privacy" /> policy. zero tolerance for nasty stuff.
+          </Text>
         </>
       ) : step === 'email' ? (
         <>
@@ -240,8 +243,11 @@ function SignedIn({ userId }: { userId: string }) {
         <Text color="textMuted">test account with no email. if you sign out it is gone.</Text>
       ) : null}
       <View style={styles.actions}>
-        {staff ? <Button label="check photos for upzzy" onPress={() => router.push('/review')} /> : null}
+        {staff ? <Button label="staff: reports and upzzy check" onPress={() => router.push('/review')} /> : null}
         <Button label="sign out" variant="outline" onPress={() => signOut()} disabled={busy} />
+        <Text variant="caption" color="textMuted">
+          <LegalLink doc="terms" /> · <LegalLink doc="privacy" />
+        </Text>
         {confirmDelete ? (
           <>
             <Text color="textMuted">delete your account and every photo? no undo.</Text>
@@ -257,7 +263,21 @@ function SignedIn({ userId }: { userId: string }) {
   );
 }
 
+function LegalLink({ doc }: { doc: 'terms' | 'privacy' }) {
+  return (
+    <Text
+      variant="caption"
+      color="text"
+      style={styles.link}
+      accessibilityRole="link"
+      onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc } })}>
+      {doc}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
   actions: { gap: space.md, marginTop: space.xl },
   apple: { height: 54, width: '100%' },
+  link: { textDecorationLine: 'underline' },
 });
