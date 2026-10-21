@@ -60,7 +60,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:db": "bash scripts/test-db.sh",
-    "check": "npm run typecheck && npm test"
+    "check": "npm run typecheck && npm test && npm run test:functions",
+    "test:functions": "node --experimental-strip-types --test supabase/functions/*/*.test.ts"
   },
   "private": true,
   "jest": {

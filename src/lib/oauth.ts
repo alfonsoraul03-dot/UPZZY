@@ -62,3 +62,25 @@ async function browser(provider: Provider): Promise<boolean> {
   if (result.type !== 'success') return false;
   return completeAuthLink(result.url);
 }
+
+/**
+ * Before deleting an account made with Apple on iPhone: Apple asks apps to
+ * revoke its sign-in token. A fresh code from the Apple sheet goes to the
+ * `apple-revoke` server function, which holds the Apple key. 'canceled' means
+ * the person closed the sheet, so nothing should be deleted.
+ */
+export async function revokeApple(): Promise<'revoked' | 'canceled' | 'skipped'> {
+  const { data } = await supabase!.auth.getUser();
+  if (!data.user?.identities?.some((i) => i.provider === 'apple') || !(await nativeAppleAvailable())) return 'skipped';
+  let code: string | null;
+  try {
+    code = (await AppleAuthentication.signInAsync({ requestedScopes: [] })).authorizationCode;
+  } catch (e) {
+    if ((e as { code?: string }).code === 'ERR_REQUEST_CANCELED') return 'canceled';
+    throw e;
+  }
+  if (!code) throw new Error('apple did not send a code');
+  const { error } = await supabase!.functions.invoke('apple-revoke', { body: { code } });
+  if (error) throw error;
+  return 'revoked';
+}

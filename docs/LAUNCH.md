@@ -45,6 +45,13 @@ npx eas-cli@latest init
 2. Crea un **Services ID**, por ejemplo `com.upzzy.app.web`. Activa Sign In with Apple y pon como Return URL `https://invplnoxmxoqndfyblej.supabase.co/auth/v1/callback`.
 3. En Keys, crea una key con Sign In with Apple y descarga el `.p8`.
 4. En Supabase → Authentication → Sign In / Providers → **Apple**, actívalo. Pon en Client IDs `com.upzzy.app,com.upzzy.app.web`, y después tu Team ID, el Key ID y el contenido del `.p8`.
+5. Sube la función que corta el acceso de Apple al borrar una cuenta (Apple lo exige). Usa la misma key:
+
+```bash
+npx supabase secrets set APPLE_TEAM_ID=TU_TEAM_ID APPLE_KEY_ID=TU_KEY_ID APPLE_CLIENT_ID=com.upzzy.app
+npx supabase secrets set APPLE_PRIVATE_KEY="$(cat ~/Downloads/AuthKey_TU_KEY_ID.p8)"
+npx supabase functions deploy apple-revoke
+```
 
 ## 6. Login con Google
 

@@ -75,3 +75,7 @@ Las siguientes tablas se añaden en su paso: racha de 100 días con premio valid
 - `report_queue()` (solo staff): fotos denunciadas que nadie ha mirado desde la última denuncia. `moderate_post` marca `reports_checked_at`.
 - `ban_user` (solo staff, no a otro staff): tabla `bans`, quita todas sus fotos y sus móviles. `has_access()` falla para baneados y `redeem_code` devuelve `banned`. `unban_user` lo deshace. Todo va a `audit_log`.
 - Los términos prometen mirar cada denuncia en menos de 24 horas (lo exige Apple): pantalla staff → reports.
+
+## Borrar una cuenta de Apple
+
+Apple pide revocar su token cuando alguien borra la cuenta. En iPhone, `revokeApple()` (`src/lib/oauth.ts`) abre la hoja de Apple otra vez y manda el código nuevo a la función `supabase/functions/apple-revoke`. Esa función guarda la key `.p8` como secreto, cambia el código por un token y lo revoca. Si la persona cierra la hoja, no se borra nada. Si Apple falla, la cuenta se borra igual. Pruebas: `npm run test:functions`.

@@ -7,7 +7,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import { Button, Field, Sheet, Text } from '@/components/ui';
 import { useAuthLinks } from '@/hooks/useAuthLinks';
 import { useSession } from '@/hooks/useSession';
-import { nativeAppleAvailable, signInWith, type Provider } from '@/lib/oauth';
+import { nativeAppleAvailable, revokeApple, signInWith, type Provider } from '@/lib/oauth';
 import { deleteAccount, friendlyError, getMyProfile, isStaff, sendLoginCode, setUsername, signInWithoutEmail, signOut, verifyLoginCode } from '@/lib/social';
 import { isEmail, isLoginCode, isPlaceholderUsername } from '@/social/rules';
 import { normalizeUsername, validateUsername } from '@/lib/validation';
@@ -204,7 +204,18 @@ function SignedIn({ userId }: { userId: string }) {
 
   const remove = async () => {
     setBusy(true);
+    setError(null);
     try {
+      // Accounts made with Apple: confirm with Apple so it forgets upzzy too.
+      const apple = await revokeApple().catch((e) => {
+        // Deleting your data matters more; Apple access can still be removed in Settings.
+        console.warn('apple revoke failed:', e);
+        return 'skipped' as const;
+      });
+      if (apple === 'canceled') {
+        setBusy(false);
+        return;
+      }
       await deleteAccount(userId);
       if (router.canGoBack()) router.back();
     } catch (e) {
@@ -250,7 +261,7 @@ function SignedIn({ userId }: { userId: string }) {
         </Text>
         {confirmDelete ? (
           <>
-            <Text color="textMuted">delete your account and every photo? no undo.</Text>
+            <Text color="textMuted">delete your account and every photo? no undo. signed in with apple? confirm with apple next.</Text>
             <Button label={busy ? 'deleting…' : 'delete for good'} onPress={remove} disabled={busy} />
             <Button label="keep it" variant="outline" onPress={() => setConfirmDelete(false)} disabled={busy} />
           </>
