@@ -20,7 +20,7 @@ Reglas (todas en el servidor):
 
 1. ✓ Fotos con la cámara, feed global y amigos, seguir, reportar, bloquear, borrar cuenta.
 2. ✓ Challenge a hora al azar, puntos por rapidez, reacciones con selfie, perfil, racha, ranking.
-3. ✓ Mensajes entre amigos (os seguís los dos). Botón "skip email (dev only)" para probar sin email mientras desarrollamos.
+3. ✓ Mensajes entre amigos (os seguís los dos). En desarrollo la app entra sola, sin login.
 4. **Notificación** cuando sale el challenge ("the oops is out. 2 min for 100 pts.").
 5. **Email propio** (Resend) para que el login funcione para todo el mundo.
 6. Premios: racha de 100 días y ganador del mes, revisados por una persona.

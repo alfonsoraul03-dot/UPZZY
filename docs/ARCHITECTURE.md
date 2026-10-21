@@ -43,7 +43,7 @@ Reglas que comprueba el servidor (`submit_post`): que el challenge sea el de hoy
 
 Mensajes (`send_message`): solo entre amigos (os seguís los dos), nunca si uno ha bloqueado al otro, de 1 a 1000 caracteres y como mucho 30 por minuto. `my_chats` da la lista de conversaciones con los no leídos y `mark_read` los marca. Los mensajes nuevos llegan con Supabase Realtime; si falla, la conversación se refresca cada 10 segundos.
 
-Entrar sin email: en desarrollo (`__DEV__`) la pantalla de login tiene "skip email (dev only)", que crea una cuenta anónima de Supabase. No aparece en la app publicada.
+Entrar sin email: en desarrollo (`__DEV__`) `useSession` entra solo con una cuenta anónima de Supabase si no hay sesión, y el login tiene "skip email (dev only)". Nada de esto existe en la app publicada.
 
 Lecturas: `today_challenge` (oculta el título hasta la hora), `latest_challenge`, `challenge_feed`, `user_stats` (racha y puntos) y `monthly_ranking`.
 
