@@ -161,9 +161,10 @@ export default function CaptureScreen() {
       <Text variant="title">{challenge.title}</Text>
       {challenge.description ? <Text color="textMuted">{challenge.description}</Text> : null}
       {challenge.reward ? <Text>prize: {challenge.reward}</Text> : null}
+      <Text color="textMuted">an upzzy piece has to be in the photo. we check every one. no piece, no points.</Text>
       <Button label="take photo" onPress={shoot} style={styles.cta} />
       <Text variant="caption" color="textMuted">
-        worth {pointsFor(minutesBetween(challenge.opens_at, new Date()))} points right now. camera only. one a day.
+        worth {pointsFor(minutesBetween(challenge.opens_at, new Date()), challenge.max_points)} points right now. camera only. one a day.
       </Text>
     </Sheet>
   );

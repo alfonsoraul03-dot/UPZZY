@@ -112,6 +112,12 @@ export function Profile({ userId, me, actions }: ProfileProps) {
         <Stat value={stats?.posts ?? 0} label={(stats?.posts ?? 0) === 1 ? 'photo' : 'photos'} />
       </View>
 
+      {isMe && stats?.pending_points ? (
+        <Text color="textMuted" style={styles.center}>
+          +{stats.pending_points} pts waiting for the upzzy check.
+        </Text>
+      ) : null}
+
       {!isMe ? (
         <View style={styles.row}>
           <Button
@@ -148,7 +154,9 @@ export function Profile({ userId, me, actions }: ProfileProps) {
                 <Text style={[styles.day, { color: theme.onPhoto, textShadowColor: theme.photoShadow }]}>
                   {p.challenges ? Number(p.challenges.day.slice(8)) : ''}
                 </Text>
-                <Text style={[styles.pts, { color: theme.onPhoto, textShadowColor: theme.photoShadow }]}>+{p.points}</Text>
+                <Text style={[styles.pts, { color: theme.onPhoto, textShadowColor: theme.photoShadow }]}>
+                  {p.review === 'approved' ? `+${p.points}` : p.review === 'pending' ? 'checking' : 'no upzzy'}
+                </Text>
               </View>
             </View>
           ))}

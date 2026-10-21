@@ -3,7 +3,7 @@ import * as Linking from 'expo-linking';
 import * as Sharing from 'expo-sharing';
 import { Platform, Share } from 'react-native';
 
-import { normalizeCaption, normalizeMessage, photoPath, reactionPath, type FeedPost, type FeedScope } from '@/social/rules';
+import { normalizeCaption, normalizeMessage, photoPath, reactionPath, type FeedPost, type FeedScope, type Review } from '@/social/rules';
 
 import { parseAuthLink } from './authLink';
 import { supabase } from './supabase';
@@ -20,6 +20,8 @@ export type Challenge = {
   title: string;
   description: string | null;
   reward: string | null;
+  /** What the challenge is worth if you post right away (100 to 500). */
+  max_points: number;
 };
 
 /** Today's challenge, or just `{ is_open: false }` while it is still a secret. */
@@ -30,7 +32,10 @@ export type UserStats = {
   streak: number;
   month_points: number;
   total_points: number;
+  /** Points of photos still waiting for the UPZZY check. */
+  pending_points: number;
   posts: number;
+  friends: number;
   following: boolean;
 };
 
@@ -38,6 +43,7 @@ export type ProfilePost = {
   id: string;
   image_path: string;
   points: number;
+  review: Review;
   challenges: { day: string; title: string } | null;
 };
 
@@ -176,7 +182,7 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
 export async function getUserPosts(userId: string): Promise<ProfilePost[]> {
   const { data, error } = await client()
     .from('posts')
-    .select('id, image_path, points, challenges(day, title)')
+    .select('id, image_path, points, review, challenges(day, title)')
     .eq('user_id', userId)
     .eq('status', 'visible')
     .order('created_at', { ascending: false })
@@ -342,4 +348,41 @@ export function onNewMessage(me: string, onMessage: (message: Message) => void):
   return () => {
     db.removeChannel(channel);
   };
+}
+
+/** Likes are +1 point for the photo's owner once the photo is checked. You cannot like your own. */
+export async function setLiked(postId: string, liked: boolean, me: string): Promise<void> {
+  const db = client();
+  const { error } = liked
+    ? await db.from('post_likes').insert({ post_id: postId })
+    : await db.from('post_likes').delete().eq('post_id', postId).eq('user_id', me);
+  if (error && error.code !== '23505') throw error;
+}
+
+/** Staff (moderators and admins) check photos for an UPZZY piece. */
+export async function isStaff(): Promise<boolean> {
+  const { data, error } = await client().rpc('is_staff');
+  if (error) throw error;
+  return !!data;
+}
+
+export type PendingPost = { id: string; user_id: string; image_path: string; caption: string | null; points: number; created_at: string };
+
+/** Photos waiting for the UPZZY check, oldest first. */
+export async function getPendingPosts(): Promise<PendingPost[]> {
+  const { data, error } = await client()
+    .from('posts')
+    .select('id, user_id, image_path, caption, points, created_at')
+    .eq('review', 'pending')
+    .eq('status', 'visible')
+    .order('created_at', { ascending: true })
+    .limit(30);
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Approve (an UPZZY piece shows) or turn down (no points). The server checks you are staff and logs it. */
+export async function reviewPost(postId: string, hasUpzzy: boolean): Promise<void> {
+  const { error } = await client().rpc('review_post', { p_post_id: postId, p_has_upzzy: hasUpzzy });
+  if (error) throw error;
 }

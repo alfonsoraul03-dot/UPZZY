@@ -126,7 +126,7 @@ export default function RankingScreen() {
             {monthName(new Date())}
           </Text>
           <Text color="textMuted" style={styles.centerText}>
-            the earlier you post after the drop, the more points.
+            challenges up to 500 pts, more the faster you post. +1 per like, +10 per friend. no upzzy in the photo, no points.
           </Text>
         </View>
       </View>

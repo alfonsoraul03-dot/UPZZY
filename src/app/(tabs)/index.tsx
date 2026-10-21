@@ -17,6 +17,7 @@ import {
   photoUrls,
   reportPost,
   setFollowing,
+  setLiked,
   sharePhoto,
   type Challenge,
 } from '@/lib/social';
@@ -26,6 +27,7 @@ import {
   lateLabel,
   minutesBetween,
   pointsFor,
+  pointsLabel,
   shortDay,
   type FeedPost,
   type FeedScope,
@@ -38,7 +40,7 @@ const SCOPES = ['friends', 'global'] as const;
 
 /**
  * Home: today's challenge photos, one per screen. Swipe up for the next,
- * double tap to react with a selfie. While today's challenge is still a
+ * double tap to like, the camera button to react with a selfie. While today's challenge is still a
  * secret, yesterday's photos stay up.
  */
 export default function HomeScreen() {
@@ -146,6 +148,23 @@ export default function HomeScreen() {
     router.push({ pathname: '/react', params: { post: post.id, name: displayName(post.username) } });
   };
 
+  const like = async (post: FeedPost, only?: 'like') => {
+    if (needAccount() || !userId || post.user_id === userId) return;
+    const liked = only === 'like' ? true : !post.liked;
+    if (liked === post.liked) return;
+    haptic('tap');
+    const apply = (value: boolean) =>
+      setPosts((all) =>
+        all.map((p) => (p.id === post.id ? { ...p, liked: value, like_count: Math.max(0, p.like_count + (value ? 1 : -1)) } : p)),
+      );
+    apply(liked);
+    try {
+      await setLiked(post.id, liked, userId);
+    } catch {
+      apply(!liked);
+    }
+  };
+
   const follow = async (post: FeedPost) => {
     if (needAccount() || !userId || post.user_id === userId) return;
     haptic('tap');
@@ -173,7 +192,7 @@ export default function HomeScreen() {
     );
   }
 
-  const worth = challenge && counting ? pointsFor(minutesBetween(challenge.opens_at, now)) : 0;
+  const worth = challenge && counting ? pointsFor(minutesBetween(challenge.opens_at, now), challenge.max_points) : 0;
   const hasPhotos = posts.length > 0 && load === 'ready';
 
   const top = (
@@ -278,6 +297,7 @@ export default function HomeScreen() {
                 challenge={challenge}
                 isMine={item.user_id === userId}
                 onReact={react}
+                onLike={like}
                 onFollow={follow}
                 onMore={setMenuFor}
               />
@@ -317,6 +337,7 @@ function PostPage({
   challenge,
   isMine,
   onReact,
+  onLike,
   onFollow,
   onMore,
 }: {
@@ -326,6 +347,7 @@ function PostPage({
   challenge: Challenge;
   isMine: boolean;
   onReact: (post: FeedPost) => void;
+  onLike: (post: FeedPost, only?: 'like') => void;
   onFollow: (post: FeedPost) => void;
   onMore: (post: FeedPost) => void;
 }) {
@@ -339,7 +361,8 @@ function PostPage({
     const at = Date.now();
     if (isDoubleTap(lastTap.current, at)) {
       lastTap.current = 0;
-      if (!isMine) onReact(post);
+      // Double tap likes, like on TikTok. It never unlikes.
+      if (!isMine) onLike(post, 'like');
     } else {
       lastTap.current = at;
     }
@@ -369,6 +392,23 @@ function PostPage({
             </Pressable>
           ) : null}
         </View>
+
+        {!isMine ? (
+          <Pressable
+            onPress={() => onLike(post)}
+            accessibilityRole="button"
+            accessibilityLabel={post.liked ? 'unlike' : 'like'}
+            accessibilityState={{ selected: post.liked }}
+            style={styles.action}>
+            <Icon name="heart" color={theme.onPhoto} size={34} weight={2} filled={post.liked} />
+            <Text style={[styles.actionLabel, onPhoto]}>{post.like_count}</Text>
+          </Pressable>
+        ) : (
+          <View style={styles.action} accessibilityLabel={`${post.like_count} likes`}>
+            <Icon name="heart" color={theme.onPhoto} size={34} weight={2} />
+            <Text style={[styles.actionLabel, onPhoto]}>{post.like_count}</Text>
+          </View>
+        )}
 
         {!isMine ? (
           <Pressable onPress={() => onReact(post)} accessibilityRole="button" accessibilityLabel="react with a selfie" style={styles.action}>
@@ -419,7 +459,7 @@ function PostPage({
         ) : null}
         <View style={[styles.points, { backgroundColor: theme.onPhoto }]}>
           <Text style={[styles.pointsText, { color: theme.onText }]}>
-            +{post.points} pts · {lateLabel(minutesBetween(challenge.opens_at, post.created_at))}
+            {pointsLabel(post.points, post.review, lateLabel(minutesBetween(challenge.opens_at, post.created_at)))}
           </Text>
         </View>
       </View>

@@ -103,11 +103,11 @@ export const fonts = {
   /** Bold, wide capitals: the logo and big numbers only. */
   display: 'Archivo_900Black',
   /** Small, quiet lowercase for everything else. */
-  body: 'Inter_400Regular',
-  bodyMedium: 'Inter_500Medium',
-  bodySemiBold: 'Inter_600SemiBold',
-  bodyBold: 'Inter_700Bold',
-  bodyHeavy: 'Inter_800ExtraBold',
+  body: 'PlusJakartaSans_400Regular',
+  bodyMedium: 'PlusJakartaSans_500Medium',
+  bodySemiBold: 'PlusJakartaSans_600SemiBold',
+  bodyBold: 'PlusJakartaSans_700Bold',
+  bodyHeavy: 'PlusJakartaSans_800ExtraBold',
   mono: 'JetBrainsMono_500Medium',
 } as const;
 
@@ -120,7 +120,7 @@ export const type = {
   body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 23 },
   bodyStrong: { fontFamily: fonts.bodyBold, fontSize: 16, lineHeight: 23 },
   caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
-  label: { fontFamily: fonts.mono, fontSize: 11, lineHeight: 14, letterSpacing: 1 },
+  label: { fontFamily: fonts.bodySemiBold, fontSize: 12, lineHeight: 16, letterSpacing: 0.4 },
 } as const;
 
 export type TypeVariant = keyof typeof type;

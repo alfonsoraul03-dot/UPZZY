@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button, Field, Sheet, Text } from '@/components/ui';
 import { useAuthLinks } from '@/hooks/useAuthLinks';
 import { useSession } from '@/hooks/useSession';
-import { deleteAccount, friendlyError, getMyProfile, sendLoginCode, setUsername, signInWithoutEmail, signOut, verifyLoginCode } from '@/lib/social';
+import { deleteAccount, friendlyError, getMyProfile, isStaff, sendLoginCode, setUsername, signInWithoutEmail, signOut, verifyLoginCode } from '@/lib/social';
 import { isEmail, isLoginCode, isPlaceholderUsername } from '@/social/rules';
 import { normalizeUsername, validateUsername } from '@/lib/validation';
 import { space } from '@/theme';
@@ -131,11 +131,13 @@ function SignedIn({ userId }: { userId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [staff, setStaff] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const profile = await getMyProfile(userId);
+      const [profile, isStaffMember] = await Promise.all([getMyProfile(userId), isStaff().catch(() => false)]);
       setName(profile?.username ?? null);
+      setStaff(isStaffMember);
       setError(null);
     } catch (e) {
       setError(friendlyError(e));
@@ -205,6 +207,7 @@ function SignedIn({ userId }: { userId: string }) {
         <Text color="textMuted">test account with no email. if you sign out it is gone.</Text>
       ) : null}
       <View style={styles.actions}>
+        {staff ? <Button label="check photos for upzzy" onPress={() => router.push('/review')} /> : null}
         <Button label="sign out" variant="outline" onPress={() => signOut()} disabled={busy} />
         {confirmDelete ? (
           <>

@@ -45,6 +45,8 @@ Mensajes (`send_message`): solo entre amigos (os seguís los dos), nunca si uno 
 
 Entrar sin email: en desarrollo (`__DEV__`) `useSession` entra solo con una cuenta anónima de Supabase si no hay sesión, y el login tiene "skip email (dev only)". Nada de esto existe en la app publicada.
 
+Puntos (`scores_since`, interno): cada reto vale al azar entre 100 y 500 (`max_points`) y te llevas más cuanto antes publiques (`post_points`). Las fotos empiezan en `review = 'pending'`: el staff las revisa con `review_post` (queda en `audit_log`) y solo las aprobadas suman sus puntos y sus likes (+1 cada uno, nunca de tu propia foto). Cada amigo (os seguís los dos) suma 10. `user_stats` y `monthly_ranking` solo devuelven totales.
+
 Lecturas: `today_challenge` (oculta el título hasta la hora), `latest_challenge`, `challenge_feed`, `user_stats` (racha y puntos) y `monthly_ranking`.
 
 Las siguientes tablas se añaden en su paso: racha de 100 días con premio validada en el servidor, comentarios, competición mensual, First 100, drops con reservas, Creator Club.

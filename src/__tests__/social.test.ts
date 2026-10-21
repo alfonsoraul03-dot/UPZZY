@@ -14,6 +14,7 @@ import {
   normalizeCaption,
   photoPath,
   pointsFor,
+  pointsLabel,
   reactionPath,
   shortDay,
   streakLabel,
@@ -62,6 +63,15 @@ describe('social rules', () => {
     expect(pointsFor(60)).toBe(89);
     expect(pointsFor(180)).toBe(65);
     expect(pointsFor(10000)).toBe(10);
+    expect(pointsFor(0, 500)).toBe(500);
+    expect(pointsFor(30, 500)).toBe(475);
+    expect(pointsFor(10000, 300)).toBe(30);
+  });
+
+  it('only counts checked photos', () => {
+    expect(pointsLabel(450, 'approved', '3 min after the drop')).toBe('+450 pts · 3 min after the drop');
+    expect(pointsLabel(450, 'pending', 'x')).toBe('+450 pts · upzzy check pending');
+    expect(pointsLabel(450, 'rejected', 'x')).toBe('no upzzy · 0 pts');
   });
 
   it('measures and labels lateness', () => {

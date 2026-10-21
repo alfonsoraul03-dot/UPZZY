@@ -81,6 +81,17 @@ select public.schedule_challenge('2026-10-26', 'sunrise. no filter.', null, null
 
 (Funciona desde el SQL Editor porque ahí eres el dueño de la base de datos; desde la app solo pueden hacerlo admins y moderadores.)
 
+### Revisar las fotos (prenda UPZZY)
+
+Las fotos solo suman puntos cuando alguien del staff confirma que sale una prenda UPZZY. Para ser staff, en **SQL Editor** (cambia `TU_NOMBRE` por tu nombre en la app):
+
+```sql
+insert into public.user_roles (user_id, role)
+select id, 'admin' from public.profiles where username = 'TU_NOMBRE';
+```
+
+Luego en la app: **you → settings → check photos for upzzy**.
+
 ### Moderación
 
 Tres reportes ocultan una foto automáticamente. Para ver o restaurar fotos, en **Table Editor → posts** (columna `status`), o con `select public.moderate_post('ID', 'visible');`. Todo queda en `audit_log`.
@@ -104,6 +115,7 @@ src/app/            pantallas (Expo Router)
   user/[id].tsx     perfil de otra persona
   chat/[id].tsx     conversación con un amigo
   drop.tsx          tienda (drop 001)
+  review.tsx        revisar fotos (solo staff)
 src/social/         reglas del challenge y del feed, con tests
 src/components/     tablero, logo y componentes de interfaz
 src/theme/          colores, tipografía y espaciado (design tokens)

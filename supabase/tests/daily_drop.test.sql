@@ -49,7 +49,8 @@ end $$;
 select pg_temp.act_as('20000000-0000-0000-0000-000000000001');
 select public.today_challenge();
 reset role;
-update public.challenges set opens_at = now() + interval '2 hours' where day = public.challenge_day();
+-- Worth 100 so the numbers below are easy to follow (points.test.sql covers other values).
+update public.challenges set opens_at = now() + interval '2 hours', max_points = 100 where day = public.challenge_day();
 insert into t select 'challenge', id::text from public.challenges where day = public.challenge_day();
 select pg_temp.act_as('20000000-0000-0000-0000-000000000001');
 insert into storage.objects (bucket_id, name)
@@ -165,6 +166,8 @@ insert into public.challenges (day, title, opens_at) values
   (public.challenge_day() - 4, 'a while ago.', now() - interval '4 days');
 insert into public.posts (user_id, challenge_id, image_path, points)
 select '20000000-0000-0000-0000-000000000001', id, 'old/' || day || '.jpg', 50 from public.challenges where day < public.challenge_day();
+-- Staff checked every photo: the UPZZY piece shows.
+update public.posts set review = 'approved';
 select pg_temp.act_as(null);
 do $$
 declare s record;

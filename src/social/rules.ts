@@ -8,6 +8,13 @@ export const CAPTION_MAX = 80;
 
 export type FeedScope = 'global' | 'friends';
 
+/** Staff check every photo for an UPZZY piece; only approved photos earn points. */
+export type Review = 'pending' | 'approved' | 'rejected';
+
+/** Each like on a checked photo, and each friend, adds points. Mirrors `scores_since`. */
+export const POINTS_PER_LIKE = 1;
+export const POINTS_PER_FRIEND = 10;
+
 export type Reaction = { user_id: string; username: string | null; image_path: string };
 
 export type FeedPost = {
@@ -17,6 +24,9 @@ export type FeedPost = {
   image_path: string;
   caption: string | null;
   points: number;
+  review: Review;
+  like_count: number;
+  liked: boolean;
   created_at: string;
   following: boolean;
   reaction_count: number;
@@ -64,12 +74,21 @@ export function reactionPath(userId: string, postId: string, random: string): st
 }
 
 /**
- * Points for posting `minutes` after the drop: 100 in the first 5 minutes,
- * then one less every 5 minutes, never below 10. The server (`points_for`)
- * decides; this is only for showing what a photo is worth right now.
+ * Points for posting `minutes` after the drop on a challenge worth `max`
+ * (100 to 500): all of it in the first 5 minutes, then 1% less every 5
+ * minutes, never below 10%. The server (`post_points`) decides; this is only
+ * for showing what a photo is worth right now.
  */
-export function pointsFor(minutes: number): number {
-  return Math.max(10, 100 - Math.floor(Math.max(minutes - 5, 0) / 5));
+export function pointsFor(minutes: number, max = 100): number {
+  const share = Math.max(10, 100 - Math.floor(Math.max(minutes - 5, 0) / 5));
+  return Math.round((max * share) / 100);
+}
+
+/** The line on a photo: its points, or why they do not count (yet). */
+export function pointsLabel(points: number, review: Review, late: string): string {
+  if (review === 'rejected') return 'no upzzy · 0 pts';
+  if (review === 'pending') return `+${points} pts · upzzy check pending`;
+  return `+${points} pts · ${late}`;
 }
 
 export function minutesBetween(from: string | Date, to: string | Date): number {
