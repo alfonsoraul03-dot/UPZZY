@@ -19,7 +19,7 @@
     "android": {
       "package": "com.upzzy.app",
       "adaptiveIcon": {
-        "backgroundColor": "#F2F0EA",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
