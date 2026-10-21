@@ -24,7 +24,7 @@ Reglas (todas en el servidor):
 4. ✓ Acceso solo con prenda: código de un solo uso en el paquete.
 5. ✓ Mensajes entre amigos (os seguís los dos). En desarrollo la app entra sola, sin login.
 6. ✓ Notificación al móvil cuando sale el challenge: la base de datos la manda una vez por reto, cada minuto mira si ya salió (pg_cron + pg_net). El botón "ping me when it drops" aparece mientras esperas. Necesita development build y `eas init`.
-7. **Login de verdad**: Sign in with Apple y Google (elegido por Raul).
+7. ✓ Login con Apple y Google (elegido por Raul). En iPhone, Apple usa la hoja nativa; Google y Apple en Android abren el navegador seguro y vuelven a `upzzy://auth`. El email queda como opción secundaria. Falta que Raul cree las claves en Apple y Google y las ponga en Supabase.
 8. Premios: racha de 100 días y ganador del mes, revisados por una persona.
 9. Comentarios, First 100, Drops con reservas, Creator Club.
 

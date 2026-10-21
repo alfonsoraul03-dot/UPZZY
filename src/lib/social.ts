@@ -81,6 +81,7 @@ export function friendlyError(error: unknown): string {
   if (e?.code === '54000') return 'slow down a little.';
   if (e?.message === 'You can only message friends') return 'only friends can message each other.';
   if (e?.message === 'Unlock upzzy with the code from your piece') return 'unlock upzzy with the code from your package first.';
+  if (e?.message?.includes('provider is not enabled')) return 'this sign-in is not switched on in supabase yet.';
   if (e?.code === 'anonymous_provider_disabled') return 'turn on anonymous sign-ins in supabase first.';
   if (e?.message?.includes('This challenge is closed')) return 'this challenge closed. new one is up.';
   if (e?.message === 'not connected') return 'not connected yet.';

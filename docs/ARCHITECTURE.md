@@ -63,3 +63,9 @@ Las siguientes tablas se añaden en su paso: racha de 100 días con premio valid
 - `send_drop_push()` corre cada minuto con pg_cron. Llama a `claim_drop_push()`, que marca el reto de hoy como avisado una sola vez (solo si abrió hace menos de 2 horas) y devuelve los móviles de los miembros con acceso. Después manda el push a Expo con pg_net, de 100 en 100. Queda en `audit_log` como `challenge.push`.
 - La app no puede lanzar el push. Solo lo hace el programador de tareas de la base de datos.
 - En la app: `src/lib/push.ts`. Hace falta un development build (Expo Go no recibe push) y el `projectId` de EAS en `app.json`, que se pone con `eas init`.
+
+## Login
+
+- `src/lib/oauth.ts`. En iPhone usa la hoja nativa de Apple (`expo-apple-authentication`) con un nonce: Apple firma su SHA-256 y Supabase comprueba el original con `signInWithIdToken`.
+- Google, y Apple fuera del iPhone, usan `signInWithOAuth` y abren el navegador seguro con `WebBrowser.openAuthSessionAsync`. Vuelven a `upzzy://auth` y `completeAuthLink` guarda la sesión.
+- En Supabase: Authentication → Providers → Apple y Google activados, y `upzzy://auth` en Redirect URLs.

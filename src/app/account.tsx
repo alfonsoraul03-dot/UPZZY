@@ -2,9 +2,12 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import * as AppleAuthentication from 'expo-apple-authentication';
+
 import { Button, Field, Sheet, Text } from '@/components/ui';
 import { useAuthLinks } from '@/hooks/useAuthLinks';
 import { useSession } from '@/hooks/useSession';
+import { nativeAppleAvailable, signInWith, type Provider } from '@/lib/oauth';
 import { deleteAccount, friendlyError, getMyProfile, isStaff, sendLoginCode, setUsername, signInWithoutEmail, signOut, verifyLoginCode } from '@/lib/social';
 import { isEmail, isLoginCode, isPlaceholderUsername } from '@/social/rules';
 import { normalizeUsername, validateUsername } from '@/lib/validation';
@@ -30,7 +33,24 @@ export default function AccountScreen() {
 function SignIn({ linkProblem }: { linkProblem: string | null }) {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
-  const [step, setStep] = useState<'email' | 'code'>('email');
+  const [step, setStep] = useState<'pick' | 'email' | 'code'>('pick');
+  const [appleSheet, setAppleSheet] = useState(false);
+
+  useEffect(() => {
+    nativeAppleAvailable().then(setAppleSheet);
+  }, []);
+
+  const withProvider = async (provider: Provider) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await signInWith(provider);
+    } catch (e) {
+      setError(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,7 +93,26 @@ function SignIn({ linkProblem }: { linkProblem: string | null }) {
 
   return (
     <Sheet title="sign in">
-      {step === 'email' ? (
+      {step === 'pick' ? (
+        <>
+          <Text variant="title">get in.</Text>
+          <Text color="textMuted">one tap. no password.</Text>
+          {appleSheet ? (
+            <AppleAuthentication.AppleAuthenticationButton
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+              cornerRadius={999}
+              style={styles.apple}
+              onPress={() => !busy && withProvider('apple')}
+            />
+          ) : (
+            <Button label="continue with apple" onPress={() => withProvider('apple')} disabled={busy} />
+          )}
+          <Button label="continue with google" variant="outline" onPress={() => withProvider('google')} disabled={busy} />
+          <Button label="use email instead" variant="outline" onPress={() => setStep('email')} disabled={busy} />
+          {__DEV__ ? <Button label="skip (dev only)" variant="outline" onPress={skip} disabled={busy} /> : null}
+        </>
+      ) : step === 'email' ? (
         <>
           <Text variant="title">your email.</Text>
           <Text color="textMuted">we send you a code. no password.</Text>
@@ -89,7 +128,7 @@ function SignIn({ linkProblem }: { linkProblem: string | null }) {
             accessibilityLabel="email"
           />
           <Button label={busy ? 'sending…' : 'send code'} onPress={send} disabled={busy || !isEmail(email)} />
-          {__DEV__ ? <Button label="skip email (dev only)" variant="outline" onPress={skip} disabled={busy} /> : null}
+          <Button label="back" variant="outline" onPress={() => setStep('pick')} disabled={busy} />
         </>
       ) : (
         <>
@@ -220,4 +259,5 @@ function SignedIn({ userId }: { userId: string }) {
 
 const styles = StyleSheet.create({
   actions: { gap: space.md, marginTop: space.xl },
+  apple: { height: 54, width: '100%' },
 });
