@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -6,7 +6,7 @@ import { Wordmark } from '@/components/brand/Wordmark';
 import { Button, Field, Screen, Text } from '@/components/ui';
 import { setAccess } from '@/hooks/useAccess';
 import { useSession } from '@/hooks/useSession';
-import { friendlyError, redeemCode, type RedeemResult } from '@/lib/social';
+import { friendlyError, redeemCode, signOut, type RedeemResult } from '@/lib/social';
 import { space } from '@/theme';
 
 const PROBLEMS: Record<Exclude<RedeemResult, 'ok'>, string> = {
@@ -43,6 +43,8 @@ export default function UnlockScreen() {
 
   const enough = code.replace(/[^a-z0-9]/gi, '').length >= 10;
 
+  if (ready && !userId) return <Redirect href="/sign-in" />;
+
   return (
     <Screen
       header={
@@ -54,9 +56,7 @@ export default function UnlockScreen() {
         <Text variant="heading">upzzy is for people who wear it.</Text>
         <Text color="textMuted">every piece comes with a one-time code in the package. type it here to get in.</Text>
       </View>
-      {!ready ? null : !userId ? (
-        <Button label="sign in first" onPress={() => router.push('/account')} />
-      ) : (
+      {!ready || !userId ? null : (
         <View style={styles.gap}>
           <Field
             value={code}
@@ -70,6 +70,7 @@ export default function UnlockScreen() {
           />
           <Button label={busy ? 'checking…' : 'unlock'} onPress={unlock} disabled={busy || !enough} />
           {error ? <Text color="textMuted">{error}</Text> : null}
+          <Button label="wrong account? sign out" variant="outline" onPress={() => signOut()} disabled={busy} />
         </View>
       )}
       <View style={styles.gap}>

@@ -61,7 +61,7 @@ La app necesita Supabase: mira la sección siguiente. Sin Supabase verás "not c
    upzzy://**
    ```
    La primera es para probar con Expo Go; la segunda, para la app publicada. Abre el email **en el móvil** y toca el enlace: se abre la app y ya estás dentro.
-6. Mientras desarrollas puedes entrar sin email: en **Authentication → Sign In / Providers** activa **Allow anonymous sign-ins**. Con eso, en desarrollo la app entra sola con una cuenta de prueba, sin pantalla de login. En la app publicada esto no pasa.
+6. Mientras desarrollas puedes entrar sin email: en **Authentication → Sign In / Providers** activa **Allow anonymous sign-ins**. Con eso, en desarrollo la pantalla de entrar muestra el botón "skip (dev only)", que entra con una cuenta de prueba sin email. En la app publicada no sale.
 7. Reinicia Expo con `npx expo start --clear` para que lea el `.env`.
 8. Para hacerte administrador, regístrate en la app y luego abre **SQL Editor** en Supabase y ejecuta:
    ```sql

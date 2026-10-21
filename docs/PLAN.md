@@ -22,9 +22,9 @@ Reglas (todas en el servidor):
 2. ✓ Challenge a hora al azar, puntos por rapidez, reacciones con selfie, perfil, racha, ranking.
 3. ✓ Puntos nuevos: cada reto vale hasta 500 (al azar), +1 por like, +10 por amigo, y solo cuentan las fotos con una prenda UPZZY que revisa el staff. Retos pensados para llevar la ropa. Letra Plus Jakarta Sans.
 4. ✓ Acceso solo con prenda: código de un solo uso en el paquete. Al meterlo sale la bienvenida con las reglas de puntos y el premio: el top 3 global de cada mes gana una prenda gratis (lo revisa el staff).
-5. ✓ Mensajes entre amigos (os seguís los dos). En desarrollo la app entra sola, sin login.
+5. ✓ Mensajes entre amigos (os seguís los dos).
 6. ✓ Notificación al móvil cuando sale el challenge: la base de datos la manda una vez por reto, cada minuto mira si ya salió (pg_cron + pg_net). El botón "ping me when it drops" aparece mientras esperas. Necesita development build y `eas init`.
-7. ✓ Login con Apple y Google (elegido por Raul). En iPhone, Apple usa la hoja nativa; Google y Apple en Android abren el navegador seguro y vuelven a `upzzy://auth`. El email queda como opción secundaria. Falta que Raul cree las claves en Apple y Google y las ponga en Supabase.
+7. ✓ Login con Apple y Google (elegido por Raul). En iPhone, Apple usa la hoja nativa; Google y Apple en Android abren el navegador seguro y vuelven a `upzzy://auth`. El email queda como opción secundaria. La app abre en la pantalla de entrar (UPZZY en grande) y después pide el código del paquete; en desarrollo ya no entra sola, queda el botón "skip (dev only)". Falta que Raul cree las claves en Apple y Google y las ponga en Supabase.
 8. ✓ Seguridad para las tiendas: privacidad y términos en la app (`/legal/privacy`, `/legal/terms`), aviso al entrar, cola de denuncias para el staff (mantener, quitar o banear) y baneos que ningún código nuevo deshace.
 9. Premios: racha de 100 días y ganador del mes, revisados por una persona.
 10. Comentarios, First 100, Drops con reservas, Creator Club.

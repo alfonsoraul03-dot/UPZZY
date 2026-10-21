@@ -17,8 +17,9 @@ export default function TabsLayout() {
     if (userId && access) refreshPush().catch(() => {});
   }, [userId, access]);
 
-  // Only people who bought a piece get in. The server enforces it too.
-  if (configured && ready && (!userId || access === false)) return <Redirect href="/unlock" />;
+  // Sign in first, then the code from the package. The server enforces it too.
+  if (configured && ready && !userId) return <Redirect href="/sign-in" />;
+  if (configured && ready && access === false) return <Redirect href="/unlock" />;
 
   return (
     <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <TabBar {...props} />}>
