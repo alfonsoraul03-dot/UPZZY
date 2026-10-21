@@ -25,10 +25,23 @@ export function useAccess(userId: string | null): boolean | null {
 
   useEffect(() => {
     if (!userId || known?.userId === userId) return;
-    hasAccess().then(
-      (access) => setAccess(userId, access),
-      () => setAccess(userId, false),
-    );
+    // No connection is not a "no": keep checking instead of asking a member for a code again.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let stopped = false;
+    const check = (wait: number) =>
+      hasAccess().then(
+        (access) => {
+          if (!stopped) setAccess(userId, access);
+        },
+        () => {
+          if (!stopped) timer = setTimeout(() => check(Math.min(wait * 2, 30000)), wait);
+        },
+      );
+    check(2000);
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
   }, [userId]);
 
   return userId && known?.userId === userId ? known.access : null;
