@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, Field, Sheet, Text } from '@/components/ui';
@@ -133,22 +133,16 @@ function SignedIn({ userId }: { userId: string }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [staff, setStaff] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const [profile, isStaffMember] = await Promise.all([getMyProfile(userId), isStaff().catch(() => false)]);
-      setName(profile?.username ?? null);
-      setStaff(isStaffMember);
-      setError(null);
-    } catch (e) {
-      setError(friendlyError(e));
-    } finally {
-      setLoaded(true);
-    }
-  }, [userId]);
-
   useEffect(() => {
-    load();
-  }, [load]);
+    Promise.all([getMyProfile(userId), isStaff().catch(() => false)])
+      .then(([profile, isStaffMember]) => {
+        setName(profile?.username ?? null);
+        setStaff(isStaffMember);
+        setError(null);
+      })
+      .catch((e) => setError(friendlyError(e)))
+      .finally(() => setLoaded(true));
+  }, [userId]);
 
   const save = async () => {
     const problem = validateUsername(draft);

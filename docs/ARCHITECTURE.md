@@ -56,3 +56,10 @@ Las siguientes tablas se añaden en su paso: racha de 100 días con premio valid
 ## Tests de base de datos
 
 `npm run test:db` levanta un Postgres temporal, simula las piezas de Supabase que usan las migraciones (`supabase/tests/_auth_stub.sql`), aplica todas las migraciones y ejecuta `supabase/tests/*.test.sql` actuando como visitante anónimo, miembro, moderador y admin.
+
+## Push del reto
+
+- El móvil guarda su token de Expo con `save_push_token` (solo el suyo; máximo 5 móviles por cuenta). Al cerrar sesión se borra con `remove_push_token`.
+- `send_drop_push()` corre cada minuto con pg_cron. Llama a `claim_drop_push()`, que marca el reto de hoy como avisado una sola vez (solo si abrió hace menos de 2 horas) y devuelve los móviles de los miembros con acceso. Después manda el push a Expo con pg_net, de 100 en 100. Queda en `audit_log` como `challenge.push`.
+- La app no puede lanzar el push. Solo lo hace el programador de tareas de la base de datos.
+- En la app: `src/lib/push.ts`. Hace falta un development build (Expo Go no recibe push) y el `projectId` de EAS en `app.json`, que se pone con `eas init`.

@@ -10,7 +10,10 @@
     "ios": {
       "icon": "./assets/icon.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.upzzy.app"
+      "bundleIdentifier": "com.upzzy.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.upzzy.app",
@@ -31,13 +34,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F2F0EA",
+          "backgroundColor": "#000000",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 120,
-          "dark": {
-            "backgroundColor": "#1E1D1B",
-            "image": "./assets/images/splash-icon.png"
-          }
+          "imageWidth": 120
         }
       ],
       "expo-sharing",
@@ -47,6 +46,13 @@
           "cameraPermission": "upzzy uses the camera to take the photo for today's challenge.",
           "photosPermission": false,
           "microphonePermission": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#000000",
+          "defaultChannel": "drop"
         }
       ]
     ],

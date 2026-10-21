@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar, Button, Icon, Shade, Text, Toggle } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { haptic } from '@/lib/haptics';
+import { pushState, turnOnPush, type PushState } from '@/lib/push';
 import {
   blockUser,
   friendlyError,
@@ -246,6 +247,7 @@ export default function HomeScreen() {
         <Text color="textMuted" style={styles.centerText}>
           {waitingLine}
         </Text>
+        <DropAlert />
       </View>
     );
   } else if (!posts.length) {
@@ -272,6 +274,7 @@ export default function HomeScreen() {
               : 'no one yet. be the first.'}
         </Text>
         {counting ? <Button label={`take yours · ${worth} pts`} onPress={takeYours} style={styles.cta} /> : null}
+        {!isToday ? <DropAlert /> : null}
       </View>
     );
   } else {
@@ -501,6 +504,44 @@ function PostMenu({ post, onClose, onDone }: { post: FeedPost; onClose: () => vo
       </Pressable>
     </Pressable>
   );
+}
+
+/** While waiting for the drop: ask once to be told when it lands. */
+function DropAlert() {
+  const [state, setState] = useState<PushState | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    pushState().then(setState, () => setState('unsupported'));
+  }, []);
+
+  if (state === 'ask')
+    return (
+      <Button
+        label={busy ? 'one sec…' : 'ping me when it drops'}
+        variant="outline"
+        disabled={busy}
+        style={styles.cta}
+        onPress={async () => {
+          setBusy(true);
+          setState(await turnOnPush().catch((): PushState => 'ask'));
+          setBusy(false);
+        }}
+      />
+    );
+  if (state === 'on')
+    return (
+      <Text variant="caption" color="textMuted" style={styles.centerText}>
+        {"we'll ping you when it drops."}
+      </Text>
+    );
+  if (state === 'off')
+    return (
+      <Text variant="caption" color="textMuted" style={styles.centerText}>
+        pings are off. turn on notifications for upzzy in your phone settings.
+      </Text>
+    );
+  return null;
 }
 
 const styles = StyleSheet.create({

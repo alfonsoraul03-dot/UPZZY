@@ -23,8 +23,8 @@ Reglas (todas en el servidor):
 3. ✓ Puntos nuevos: cada reto vale hasta 500 (al azar), +1 por like, +10 por amigo, y solo cuentan las fotos con una prenda UPZZY que revisa el staff. Retos pensados para llevar la ropa. Letra Plus Jakarta Sans.
 4. ✓ Acceso solo con prenda: código de un solo uso en el paquete.
 5. ✓ Mensajes entre amigos (os seguís los dos). En desarrollo la app entra sola, sin login.
-6. **Notificación** cuando sale el challenge ("the oops is out. 2 min for 100 pts.").
-7. **Email propio** (Resend) para que el login funcione para todo el mundo.
+6. ✓ Notificación al móvil cuando sale el challenge: la base de datos la manda una vez por reto, cada minuto mira si ya salió (pg_cron + pg_net). El botón "ping me when it drops" aparece mientras esperas. Necesita development build y `eas init`.
+7. **Login de verdad**: Sign in with Apple y Google (elegido por Raul).
 8. Premios: racha de 100 días y ganador del mes, revisados por una persona.
 9. Comentarios, First 100, Drops con reservas, Creator Club.
 

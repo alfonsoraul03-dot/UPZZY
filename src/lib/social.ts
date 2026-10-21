@@ -6,6 +6,7 @@ import { Platform, Share } from 'react-native';
 import { normalizeCaption, normalizeMessage, photoPath, reactionPath, type FeedPost, type FeedScope, type Review } from '@/social/rules';
 
 import { parseAuthLink } from './authLink';
+import { forgetPush } from './push';
 import { supabase } from './supabase';
 
 /**
@@ -271,6 +272,7 @@ export async function signInWithoutEmail(): Promise<void> {
 }
 
 export async function signOut(): Promise<void> {
+  await forgetPush().catch(() => {});
   await client().auth.signOut();
 }
 
