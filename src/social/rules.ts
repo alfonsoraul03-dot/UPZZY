@@ -14,6 +14,10 @@ export type Review = 'pending' | 'approved' | 'rejected';
 /** Each like on a checked photo, and each friend, adds points. Mirrors `scores_since`. */
 export const POINTS_PER_LIKE = 1;
 export const POINTS_PER_FRIEND = 10;
+/** The most a challenge can be worth. Mirrors `random_max_points()`. */
+export const CHALLENGE_MAX_POINTS = 500;
+/** Top of the global ranking each month wins a free piece (checked by staff). */
+export const PRIZE_PLACES = 3;
 
 export type Reaction = { user_id: string; username: string | null; image_path: string };
 

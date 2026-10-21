@@ -6,7 +6,7 @@ import { Wordmark } from '@/components/brand/Wordmark';
 import { Avatar, Button, Screen, Text, Toggle } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { friendlyError, getRanking, type RankRow } from '@/lib/social';
-import { displayName, monthName, type FeedScope } from '@/social/rules';
+import { CHALLENGE_MAX_POINTS, displayName, monthName, POINTS_PER_FRIEND, POINTS_PER_LIKE, PRIZE_PLACES, type FeedScope } from '@/social/rules';
 import { fonts, radius, space, useTheme } from '@/theme';
 
 const SCOPES = ['friends', 'global'] as const;
@@ -126,7 +126,8 @@ export default function RankingScreen() {
             {monthName(new Date())}
           </Text>
           <Text color="textMuted" style={styles.centerText}>
-            challenges up to 500 pts, more the faster you post. +1 per like, +10 per friend. no upzzy in the photo, no points.
+            challenges up to {CHALLENGE_MAX_POINTS} pts, more the faster you post. +{POINTS_PER_LIKE} per like, +{POINTS_PER_FRIEND} per friend. no upzzy in the photo, no points.
+            {scope === 'global' ? ` top ${PRIZE_PLACES} of the month win a free piece.` : ''}
           </Text>
         </View>
       </View>

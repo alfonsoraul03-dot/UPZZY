@@ -31,7 +31,7 @@ export default function UnlockScreen() {
       const result = await redeemCode(code);
       if (result === 'ok') {
         setAccess(userId, true);
-        router.replace('/');
+        router.replace('/welcome');
         return;
       }
       setError(PROBLEMS[result]);

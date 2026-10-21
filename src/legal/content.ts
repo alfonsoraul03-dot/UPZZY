@@ -89,7 +89,8 @@ export const TERMS: LegalDoc = {
       heading: 'points and prizes',
       body: [
         'points are just for the ranking. they have no money value and cannot be sold or swapped. only photos with an upzzy piece count, checked by our staff.',
-        'cheating (fake accounts, bought likes, someone else in your photo) removes the points and can end the account. prizes, when there are any, are checked by a person before they are given.',
+        "every month the top 3 of the global ranking win a free upzzy piece. staff check the winners' photos and points before sending it, and we write to winners by email.",
+        'cheating (fake accounts, bought likes, someone else in your photo) removes the points, any prize, and can end the account.',
       ],
     },
     {

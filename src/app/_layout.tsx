@@ -54,6 +54,7 @@ export default function RootLayout() {
         <Stack.Screen name="drop" />
         <Stack.Screen name="review" />
         <Stack.Screen name="unlock" />
+        <Stack.Screen name="welcome" options={{ gestureEnabled: false }} />
         <Stack.Screen name="legal/[doc]" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
