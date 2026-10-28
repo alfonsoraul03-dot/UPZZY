@@ -4,6 +4,7 @@ import {
   bagTotal,
   canPick,
   checkoutUrl,
+  colourPhotos,
   findVariant,
   formatPrice,
   imagesFor,
@@ -86,6 +87,13 @@ describe('shop', () => {
   it('shows the chosen colour first', () => {
     expect(imagesFor(tee, null, 'Black')).toEqual(['black.jpg', 'bone.jpg', 'back.jpg']);
     expect(imagesFor(tee, tee.variants[0], null)[0]).toBe('bone.jpg');
+  });
+
+  it('picks one photo per colour for swatches', () => {
+    expect(colourPhotos(tee)).toEqual([
+      { value: 'Bone', image: 'bone.jpg' },
+      { value: 'Black', image: 'black.jpg' },
+    ]);
   });
 
   it('keeps a bag with a limit per item', () => {

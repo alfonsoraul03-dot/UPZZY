@@ -7,7 +7,7 @@ import { bagCount } from '@/social/shop';
 import { fonts, useTheme } from '@/theme';
 
 /** The bag icon with how many things are in it. */
-export function BagButton() {
+export function BagButton({ color }: { color?: string }) {
   const theme = useTheme();
   const { bag } = useBag();
   const count = bagCount(bag);
@@ -17,7 +17,7 @@ export function BagButton() {
       accessibilityRole="button"
       accessibilityLabel={count ? `bag, ${count} in it` : 'bag'}
       hitSlop={12}>
-      <Icon name="bag" color={theme.text} />
+      <Icon name="bag" color={color ?? theme.text} />
       {count ? (
         <View style={[styles.badge, { backgroundColor: theme.text }]}>
           <Text style={[styles.count, { color: theme.onText }]}>{count > 9 ? '9+' : count}</Text>

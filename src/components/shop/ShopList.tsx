@@ -3,10 +3,13 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Text } from '@/components/ui';
+import { Button, Shade, Text } from '@/components/ui';
+import { haptic } from '@/lib/haptics';
 import { getDrop } from '@/lib/shop';
-import { priceLabel, soldOut, type ShopProduct } from '@/social/shop';
-import { radius, space, useTheme } from '@/theme';
+import { colourPhotos, priceLabel, soldOut, type ShopProduct } from '@/social/shop';
+import { fonts, radius, space, useTheme } from '@/theme';
+
+const FACTS = ['50 per colour', 'numbered', 'never restocked'];
 
 /** The drop's pieces, read live from the store. Tap one to pick colour and size. */
 export function ShopList() {
@@ -33,49 +36,104 @@ export function ShopList() {
 
   return (
     <View style={styles.root}>
-      <View style={styles.intro}>
+      <View style={styles.hero}>
         <Text variant="label" color="textMuted">
-          drop 001
+          drop 001 · {products ? `${products.length} pieces` : 'the first one'}
         </Text>
-        <Text variant="title">three things. that&apos;s it.</Text>
-        <Text color="textMuted">50 of each colour. numbered. never restocked.</Text>
+        <Text style={styles.big}>happened by mistake.{'\n'}stayed on purpose.</Text>
+        <View style={styles.facts}>
+          {FACTS.map((f) => (
+            <View key={f} style={[styles.fact, { borderColor: theme.border }]}>
+              <Text variant="caption">{f}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       {error ? (
-        <View style={styles.intro}>
+        <View style={styles.hero}>
           <Text variant="title">{error}</Text>
           <Button label="try again" variant="outline" onPress={retry} />
         </View>
       ) : !products ? (
-        <Text color="textMuted">loading…</Text>
+        [0, 1].map((i) => <View key={i} style={[styles.ghost, { backgroundColor: theme.surface }]} />)
       ) : (
-        products.map((p) => {
-          const gone = soldOut(p);
-          const image = p.images[0]?.src;
-          return (
-            <Pressable
-              key={p.handle}
-              onPress={() => router.push({ pathname: '/product/[handle]', params: { handle: p.handle } })}
-              accessibilityRole="link"
-              accessibilityLabel={`${p.title.toLowerCase()}, ${gone ? 'sold out' : priceLabel(p)}`}
-              style={({ pressed }) => [styles.card, { backgroundColor: theme.surface, opacity: pressed ? 0.85 : 1 }]}>
-              {image ? <Image source={{ uri: image }} style={styles.image} contentFit="cover" transition={150} /> : null}
-              <View style={styles.row}>
-                <Text variant="bodyStrong">{p.title.toLowerCase()}</Text>
-                <Text color={gone ? 'textMuted' : 'text'}>{gone ? 'sold out' : priceLabel(p)}</Text>
-              </View>
-            </Pressable>
-          );
-        })
+        products.map((p) => <ProductCard key={p.handle} product={p} />)
       )}
     </View>
   );
 }
 
+function ProductCard({ product }: { product: ShopProduct }) {
+  const theme = useTheme();
+  const gone = soldOut(product);
+  const colours = colourPhotos(product);
+  const name = product.title.toLowerCase();
+  const onPhoto = { color: theme.onPhoto, textShadowColor: theme.photoShadow };
+
+  return (
+    <Pressable
+      onPress={() => {
+        haptic('tap');
+        router.push({ pathname: '/product/[handle]', params: { handle: product.handle } });
+      }}
+      accessibilityRole="link"
+      accessibilityLabel={`${name}, ${gone ? 'sold out' : priceLabel(product)}${colours.length ? `, ${colours.length} colours` : ''}`}
+      style={({ pressed }) => [styles.card, { backgroundColor: theme.surface, transform: [{ scale: pressed ? 0.985 : 1 }] }]}>
+      <View>
+        {product.images[0] ? (
+          <Image source={{ uri: product.images[0].src }} style={styles.photo} contentFit="cover" transition={200} />
+        ) : (
+          <View style={styles.photo} />
+        )}
+        <Shade from="bottom" height={170} strength={0.75} />
+        <View style={[styles.badge, { backgroundColor: theme.photoScrim }]}>
+          <Text variant="caption" style={[styles.badgeText, { color: theme.onPhoto }]}>
+            {gone ? 'sold out' : 'drop 001'}
+          </Text>
+        </View>
+        <View style={styles.overlay}>
+          <Text style={[styles.name, styles.shadow, onPhoto]} numberOfLines={1}>
+            {name}
+          </Text>
+          <Text style={[styles.price, styles.shadow, onPhoto]}>{gone ? 'sold out' : priceLabel(product)}</Text>
+        </View>
+      </View>
+
+      {colours.length > 1 ? (
+        <View style={styles.footer}>
+          <View style={styles.swatches}>
+            {colours.map((c) =>
+              c.image ? (
+                <Image key={c.value} source={{ uri: c.image }} style={[styles.swatch, { borderColor: theme.border }]} contentFit="cover" />
+              ) : null,
+            )}
+          </View>
+          <Text variant="caption" color="textMuted">
+            {colours.map((c) => c.value.toLowerCase()).join(' · ')}
+          </Text>
+        </View>
+      ) : null}
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  root: { gap: space.lg },
-  intro: { gap: space.xs },
+  root: { gap: space.xl },
+  hero: { gap: space.md },
+  big: { fontFamily: fonts.bodyHeavy, fontSize: 34, lineHeight: 38, letterSpacing: -1 },
+  facts: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  fact: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: 6 },
+  ghost: { borderRadius: radius.lg, aspectRatio: 4 / 5 },
   card: { borderRadius: radius.lg, overflow: 'hidden' },
-  image: { width: '100%', aspectRatio: 4 / 5 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: space.lg },
+  photo: { width: '100%', aspectRatio: 4 / 5 },
+  badge: { position: 'absolute', top: space.md, left: space.md, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: 5 },
+  badgeText: { fontFamily: fonts.bodyBold },
+  overlay: { position: 'absolute', left: space.lg, right: space.lg, bottom: space.lg, flexDirection: 'row', alignItems: 'flex-end', gap: space.md },
+  name: { flex: 1, fontFamily: fonts.bodyHeavy, fontSize: 28, lineHeight: 32, letterSpacing: -0.6 },
+  price: { fontFamily: fonts.bodyBold, fontSize: 18, lineHeight: 24 },
+  shadow: { textShadowRadius: 8, textShadowOffset: { width: 0, height: 1 } },
+  footer: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md },
+  swatches: { flexDirection: 'row', gap: 6 },
+  swatch: { width: 30, height: 30, borderRadius: 15, borderWidth: 1 },
 });

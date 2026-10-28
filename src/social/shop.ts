@@ -144,3 +144,13 @@ export function checkoutUrl(store: string, bag: BagItem[]): string | null {
   if (!items.length) return null;
   return `${store.replace(/\/$/, '')}/cart/${items.map((b) => `${b.variantId}:${b.quantity}`).join(',')}`;
 }
+
+/** One photo per value of the colour option, for swatches. Empty when the product has no colour. */
+export function colourPhotos(product: ShopProduct): { value: string; image: string | null }[] {
+  const index = product.options.findIndex((o) => /colou?r/i.test(o.name));
+  if (index < 0) return [];
+  return product.options[index].values.map((value) => {
+    const ids = new Set(product.variants.filter((v) => v.options[index] === value).map((v) => v.id));
+    return { value, image: product.images.find((i) => i.variantIds.some((id) => ids.has(id)))?.src ?? null };
+  });
+}
