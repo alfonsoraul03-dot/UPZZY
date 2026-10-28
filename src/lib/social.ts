@@ -145,11 +145,14 @@ export async function blockUser(userId: string): Promise<void> {
   if (error && error.code !== '23505') throw error;
 }
 
-/** Has the signed-in user already posted to this challenge? */
-export async function myPost(challengeId: string, me: string): Promise<{ id: string; image_path: string } | null> {
+/** Has the signed-in user already posted to this challenge? `review` says whether staff found UPZZY in it. */
+export async function myPost(
+  challengeId: string,
+  me: string,
+): Promise<{ id: string; image_path: string; review: 'pending' | 'approved' | 'rejected' } | null> {
   const { data, error } = await client()
     .from('posts')
-    .select('id, image_path')
+    .select('id, image_path, review')
     .eq('challenge_id', challengeId)
     .eq('user_id', me)
     .maybeSingle();

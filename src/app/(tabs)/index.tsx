@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MistakeNotice } from '@/components/social/MistakeNotice';
 import { Avatar, Button, Icon, Shade, Text, Toggle } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { haptic } from '@/lib/haptics';
@@ -56,6 +57,8 @@ export default function HomeScreen() {
   const [load, setLoad] = useState<Load>('loading');
   const [error, setError] = useState('');
   const [posted, setPosted] = useState(false);
+  // Staff found no UPZZY in today's photo: it came down and the day is spent.
+  const [missed, setMissed] = useState(false);
   const [end, setEnd] = useState(false);
   const [height, setHeight] = useState(0);
   const [menuFor, setMenuFor] = useState<FeedPost | null>(null);
@@ -87,6 +90,7 @@ export default function HomeScreen() {
         setPosts(page);
         setVersion((v) => v + 1);
         setPosted(!!mine);
+        setMissed(mine?.review === 'rejected');
         setEnd(page.length === 0);
         setLoad('ready');
       } catch (e) {
@@ -199,6 +203,7 @@ export default function HomeScreen() {
   const top = (
     <View style={[styles.top, { paddingTop: insets.top + space.sm }]} pointerEvents="box-none">
       <Toggle options={SCOPES} value={scope} onChange={switchScope} onPhoto={hasPhotos} />
+      {missed && isToday ? <MistakeNotice /> : null}
       {challenge && hasPhotos ? (
         <View style={styles.pills} pointerEvents="box-none">
           <View style={[styles.pill, { backgroundColor: theme.photoScrim }]}>
