@@ -9,7 +9,7 @@ Cuatro pestañas:
 | **home** | Las fotos del challenge de hoy, una por pantalla. Arriba **global** o **friends**. Cada foto lleva en pequeño las reacciones: selfies de la gente con la cámara frontal (doble toque o "react"). Mientras el challenge de hoy no ha salido se ven las fotos de ayer. |
 | **ranking** | Puntos del mes, global y amigos. |
 | **shop** | La tienda dentro de la app: las prendas del drop con fotos, color, talla y precio, leídos en directo de upzzyworld.com. Bolsa guardada en el móvil; se paga en el checkout de la tienda, que se abre encima de la app (tarjeta y Apple Pay). |
-| **you** | Tu perfil: cuadrícula de tus fotos, racha de días seguidos y puntos. Ajustes y chats con amigos. Tocando un nombre ves el perfil de otra persona y puedes seguirla. |
+| **you** | Tu perfil: cuadrícula de tus fotos, racha de días seguidos y puntos. Ajustes. Tocando un nombre ves el perfil de otra persona y puedes seguirla. |
 
 Reglas (todas en el servidor):
 - El challenge sale cada día a una hora al azar entre las 9:00 y las 21:00 (Madrid), la misma para todos. Antes de esa hora nadie ve ni el título.
@@ -23,7 +23,7 @@ Reglas (todas en el servidor):
 2. ✓ Challenge a hora al azar, puntos por rapidez, reacciones con selfie, perfil, racha, ranking.
 3. ✓ Puntos nuevos: cada reto vale hasta 500 (al azar), +1 por like, +10 por amigo, y solo cuentan las fotos con una prenda UPZZY que revisa el staff. Si el staff pulsa "no upzzy", la foto se borra del todo (también el archivo, sin vuelta atrás), ese día ya no se puede volver a publicar, y en home sale "UPZZZZ. you made a mistake… try again tomorrow". Las fotos no salen en global ni friends (ni se pueden dar likes o reacciones) hasta que el staff las aprueba; quien la sube la ve al momento con "upzzy check pending". Retos pensados para llevar la ropa. Letra Plus Jakarta Sans.
 4. ✓ Acceso solo con prenda: código de un solo uso en el paquete. Al meterlo sale la bienvenida con las reglas de puntos y el premio: el top 3 global de cada mes gana una prenda gratis (lo revisa el staff).
-5. ✓ Mensajes entre amigos (os seguís los dos).
+5. ✓ Mensajes entre amigos. Quitados después por decisión de Raul; su pestaña es ahora la tienda.
 6. ✓ Notificación al móvil cuando sale el challenge: la base de datos la manda una vez por reto, cada minuto mira si ya salió (pg_cron + pg_net). El botón "ping me when it drops" aparece mientras esperas. Necesita development build y `eas init`.
 7. ✓ Login con Apple y Google (elegido por Raul). En iPhone, Apple usa la hoja nativa; Google y Apple en Android abren el navegador seguro y vuelven a `upzzy://auth`. El email queda como opción secundaria. La app abre en la pantalla de entrar (UPZZY en grande) y después pide el código del paquete; en desarrollo ya no entra sola, queda el botón "skip (dev only)". Falta que Raul cree las claves en Apple y Google y las ponga en Supabase.
 8. ✓ Seguridad para las tiendas: privacidad y términos en la app (`/legal/privacy`, `/legal/terms`), aviso al entrar, cola de denuncias para el staff (mantener, quitar o banear) y baneos que ningún código nuevo deshace.

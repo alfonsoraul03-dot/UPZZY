@@ -1,8 +1,5 @@
 import {
   CAPTION_MAX,
-  chatTime,
-  MESSAGE_MAX,
-  normalizeMessage,
   displayName,
   isDoubleTap,
   isEmail,
@@ -93,18 +90,4 @@ describe('social rules', () => {
     expect(streakLabel(12)).toBe('12 day streak');
   });
 
-  it('trims messages and refuses empty ones', () => {
-    expect(normalizeMessage('  hola  ')).toBe('hola');
-    expect(normalizeMessage('   ')).toBeNull();
-    expect(normalizeMessage('a'.repeat(MESSAGE_MAX + 5))).toHaveLength(MESSAGE_MAX);
-  });
-
-  it('labels chat times in Madrid', () => {
-    const now = new Date('2026-10-21T12:00:00Z');
-    expect(chatTime('2026-10-21T11:59:30Z', now)).toBe('now');
-    expect(chatTime('2026-10-21T08:05:00Z', now)).toBe('10:05');
-    expect(chatTime('2026-10-19T08:05:00Z', now)).toBe('oct 19');
-    // 22:30 UTC on the 20th is already the 21st in Madrid.
-    expect(chatTime('2026-10-20T22:30:00Z', now)).toBe('00:30');
-  });
 });

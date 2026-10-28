@@ -41,7 +41,7 @@ Fotos: bucket privado `oops` (máx. 5 MB, solo JPEG). Cada usuario solo sube a s
 
 Reglas que comprueba el servidor (`submit_post`): que el challenge sea el de hoy y ya haya salido, que la foto esté subida en tu carpeta y que no hayas publicado ya hoy. La app solo abre la cámara (nunca la galería), pero el servidor no puede demostrar que una foto es nueva ni que lleva ropa UPZZY: cualquier premio necesita revisión humana.
 
-Mensajes (`send_message`): solo entre amigos (os seguís los dos), nunca si uno ha bloqueado al otro, de 1 a 1000 caracteres y como mucho 30 por minuto. `my_chats` da la lista de conversaciones con los no leídos y `mark_read` los marca. Los mensajes nuevos llegan con Supabase Realtime; si falla, la conversación se refresca cada 10 segundos.
+Los chats se quitaron de la app (decisión de Raul). Las tablas y funciones de mensajes siguen en la base de datos, sin uso.
 
 Entrar sin email: en desarrollo (`__DEV__`) `useSession` entra solo con una cuenta anónima de Supabase si no hay sesión, y el login tiene "skip email (dev only)". Nada de esto existe en la app publicada.
 
