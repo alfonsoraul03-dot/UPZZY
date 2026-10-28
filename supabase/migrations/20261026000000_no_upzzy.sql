@@ -52,3 +52,6 @@ using (
   and public.has_role('moderator')
   and exists (select 1 from public.posts p where p.image_path = name and p.review = 'rejected')
 );
+
+-- Photos rejected before this rule came down too.
+update public.posts set status = 'removed' where review = 'rejected' and status <> 'removed';
