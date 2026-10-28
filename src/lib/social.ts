@@ -389,9 +389,14 @@ export async function getPendingPosts(): Promise<PendingPost[]> {
 }
 
 /** Approve (an UPZZY piece shows) or turn down (no points). The server checks you are staff and logs it. */
-export async function reviewPost(postId: string, hasUpzzy: boolean): Promise<void> {
-  const { error } = await client().rpc('review_post', { p_post_id: postId, p_has_upzzy: hasUpzzy });
+/** Staff: approve the photo, or reject it and delete its file for good. */
+export async function reviewPost(post: { id: string; image_path: string }, hasUpzzy: boolean): Promise<void> {
+  const db = client();
+  const { error } = await db.rpc('review_post', { p_post_id: post.id, p_has_upzzy: hasUpzzy });
   if (error) throw error;
+  if (hasUpzzy) return;
+  const removed = await db.storage.from(BUCKET).remove([post.image_path]);
+  if (removed.error) throw removed.error;
 }
 
 export type ReportedPost = {

@@ -167,7 +167,7 @@ function UpzzyCheck() {
     setBusy(true);
     setError(null);
     try {
-      await reviewPost(post.id, hasUpzzy);
+      await reviewPost(post, hasUpzzy);
       setQueue((q) => (q ?? []).filter((p) => p.id !== post.id));
     } catch (e) {
       setError(friendlyError(e));

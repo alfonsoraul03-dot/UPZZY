@@ -15,7 +15,7 @@ export function MistakeNotice() {
         UPZZ<Text style={[styles.word, { color: theme.oops }]}>ZZ</Text>
       </Text>
       <Text variant="bodyStrong">you made a mistake.</Text>
-      <Text color="textMuted">no upzzy in your photo, so it came down. try again tomorrow.</Text>
+      <Text color="textMuted">no upzzy in your photo, so we deleted it. try again tomorrow.</Text>
     </View>
   );
 }

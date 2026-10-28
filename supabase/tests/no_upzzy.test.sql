@@ -79,38 +79,38 @@ exception when unique_violation then null;
 end $$;
 reset role;
 
--- 4. A misclick: approving it after all brings it back.
+-- 4. No undo: the file is gone, so it cannot be approved later.
 select pg_temp.act_as('80000000-0000-0000-0000-00000000000d');
-select public.review_post(v::uuid, true) from t where k = 'post';
+do $$ begin
+  perform public.review_post((select v::uuid from t where k = 'post'), true);
+  raise exception 'approved a rejected photo';
+exception when invalid_parameter_value then null;
+end $$;
+reset role;
+
+-- 5. The file of a rejected photo: someone else cannot delete it, staff can.
+--    (dos also posts a photo that is still waiting, which staff cannot delete.)
+select pg_temp.act_as('80000000-0000-0000-0000-000000000002');
+insert into storage.objects (bucket_id, name) select 'oops', '80000000-0000-0000-0000-000000000002/' || v || '-a.jpg' from t where k = 'challenge';
+select public.submit_post(v::uuid, '80000000-0000-0000-0000-000000000002/' || v || '-a.jpg') from t where k = 'challenge';
+delete from storage.objects where name like '80000000-0000-0000-0000-000000000001/%';
 reset role;
 do $$ begin
-  if (select status from public.posts where id = (select v::uuid from t where k = 'post')) <> 'visible' then
-    raise exception 'approved photo did not come back';
+  if (select count(*) from storage.objects where name like '80000000-0000-0000-0000-000000000001/%') <> 2 then
+    raise exception 'someone else deleted the rejected photo file';
+  end if;
+end $$;
+select pg_temp.act_as('80000000-0000-0000-0000-00000000000d');
+delete from storage.objects where name = (select image_path from public.posts where id = (select v::uuid from t where k = 'post'));
+delete from storage.objects where name like '80000000-0000-0000-0000-000000000002/%';
+reset role;
+do $$ begin
+  if exists (select 1 from storage.objects where name = (select image_path from public.posts where id = (select v::uuid from t where k = 'post'))) then
+    raise exception 'staff could not delete the rejected photo file';
+  end if;
+  if not exists (select 1 from storage.objects where name like '80000000-0000-0000-0000-000000000002/%') then
+    raise exception 'staff deleted a photo that was not rejected';
   end if;
 end $$;
 
--- 5. Unless the person was banned in between: then it stays down.
-select pg_temp.act_as('80000000-0000-0000-0000-00000000000d');
-select public.review_post(v::uuid, false) from t where k = 'post';
-select public.ban_user('80000000-0000-0000-0000-000000000001', 'test');
-select public.review_post(v::uuid, true) from t where k = 'post';
-reset role;
-do $$ begin
-  if (select status from public.posts where id = (select v::uuid from t where k = 'post')) <> 'removed' then
-    raise exception 'banned person''s photo came back';
-  end if;
-end $$;
-
--- 6. Approving a photo that was never rejected leaves a moderation removal alone.
-reset role;
-update public.posts set review = 'pending', status = 'removed' where id = (select v::uuid from t where k = 'post');
-delete from public.bans;
-select pg_temp.act_as('80000000-0000-0000-0000-00000000000d');
-select public.review_post(v::uuid, true) from t where k = 'post';
-reset role;
-do $$ begin
-  if (select status from public.posts where id = (select v::uuid from t where k = 'post')) <> 'removed' then
-    raise exception 'approval undid a moderation removal';
-  end if;
-end $$;
 \echo no_upzzy: all tests passed
