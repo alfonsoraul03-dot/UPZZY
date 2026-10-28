@@ -3,7 +3,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 const PATHS = {
   home: 'M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
   ranking: 'M5 20V10M12 20V4M19 20v-7',
-  chat: 'M12 3.5c4.7 0 8.5 3.4 8.5 7.6s-3.8 7.6-8.5 7.6c-1 0-2-.1-2.9-.4L4 20l1.4-4.2A7.2 7.2 0 0 1 3.5 11.1C3.5 6.9 7.3 3.5 12 3.5z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
   user: 'M4 21c1-4 4-6 8-6s7 2 8 6',
   camera: 'M4 8h3l2-3h6l2 3h3v11H4z',
   share: 'M12 4v11M7 9l5-5 5 5M5 14v6h14v-6',

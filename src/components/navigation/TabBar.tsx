@@ -12,7 +12,7 @@ import { fonts, layout, radius, useTheme } from '@/theme';
 export const TABS: Record<string, { label: string; icon: IconName }> = {
   index: { label: 'home', icon: 'home' },
   ranking: { label: 'ranking', icon: 'ranking' },
-  chats: { label: 'chats', icon: 'chat' },
+  shop: { label: 'shop', icon: 'bag' },
   you: { label: 'you', icon: 'user' },
 };
 

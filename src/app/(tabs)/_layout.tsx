@@ -25,7 +25,7 @@ export default function TabsLayout() {
     <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <TabBar {...props} />}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="ranking" />
-      <Tabs.Screen name="chats" />
+      <Tabs.Screen name="shop" />
       <Tabs.Screen name="you" />
     </Tabs>
   );

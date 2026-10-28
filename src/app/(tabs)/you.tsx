@@ -46,7 +46,7 @@ export default function YouScreen() {
         actions={
           <View style={styles.actions}>
             <Button label="settings" variant="outline" onPress={() => router.push('/account')} style={styles.half} />
-            <Button label="shop" variant="outline" onPress={() => router.push('/drop')} style={styles.half} />
+            <Button label="shop" variant="outline" onPress={() => router.navigate('/shop')} style={styles.half} />
           </View>
         }
       />

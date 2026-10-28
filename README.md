@@ -14,7 +14,7 @@ App móvil (iOS y Android) de UPZZY: un challenge de foto al día que sale a una
 | --- | --- | --- |
 | App | Expo (SDK 58) + React Native + TypeScript | Una sola base de código para iPhone y Android, y puedes probarla en tu móvil al instante con Expo Go. |
 | Navegación | Expo Router | Cada archivo en `src/app/` es una pantalla. |
-| Backend | Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) | Base de datos real con seguridad por filas (RLS), login, fotos y chat en tiempo real. |
+| Backend | Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) | Base de datos real con seguridad por filas (RLS), login, fotos y avisos. |
 | Builds | EAS Build | Genera las apps para App Store y Google Play en la nube, sin Xcode. |
 
 ## Probar la app en tu Mac y en tu móvil
@@ -119,12 +119,12 @@ npm run test:db     # aplica las migraciones a un Postgres temporal y prueba la 
 
 ```
 src/app/            pantallas (Expo Router)
-  (tabs)/           home (feed), ranking, chats, you (perfil)
+  (tabs)/           home (feed), ranking, shop (tienda), you (perfil)
   account.tsx       login, nombre, cerrar sesión, borrar cuenta
   capture.tsx       foto del challenge (solo cámara)
   react.tsx         reacción con selfie
   user/[id].tsx     perfil de otra persona
-  chat/[id].tsx     conversación con un amigo
+  product/[handle].tsx  una prenda: fotos, tallas y comprar
   drop.tsx          tienda (drop 001)
   review.tsx        revisar fotos (solo staff)
   unlock.tsx        meter el código del paquete

@@ -6,7 +6,6 @@ import { StyleSheet, View } from 'react-native';
 import { Avatar, Button, Icon, Text } from '@/components/ui';
 import { haptic } from '@/lib/haptics';
 import {
-  areFriends,
   friendlyError,
   getUserPosts,
   getUserStats,
@@ -34,27 +33,21 @@ export function Profile({ userId, me, actions }: ProfileProps) {
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [friends, setFriends] = useState(false);
   const isMe = userId === me;
 
   const load = useCallback(async () => {
     try {
-      const [s, p, f] = await Promise.all([
-        getUserStats(userId),
-        getUserPosts(userId),
-        me && me !== userId ? areFriends(me, userId) : false,
-      ]);
+      const [s, p] = await Promise.all([getUserStats(userId), getUserPosts(userId)]);
       setUrls(await photoUrls(p.map((x) => x.image_path)));
       setStats(s);
       setPosts(p);
-      setFriends(f);
       setError(null);
     } catch (e) {
       setError(friendlyError(e));
     } finally {
       setLoaded(true);
     }
-  }, [userId, me]);
+  }, [userId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -73,7 +66,6 @@ export function Profile({ userId, me, actions }: ProfileProps) {
     setStats({ ...stats, following: next });
     try {
       await setFollowing(userId, next, me);
-      setFriends(await areFriends(me, userId));
     } catch {
       setStats({ ...stats, following: !next });
     }
@@ -126,14 +118,6 @@ export function Profile({ userId, me, actions }: ProfileProps) {
             onPress={toggleFollow}
             style={styles.half}
           />
-          {friends ? (
-            <Button
-              label="message"
-              variant="outline"
-              onPress={() => router.push({ pathname: '/chat/[id]', params: { id: userId } })}
-              style={styles.half}
-            />
-          ) : null}
         </View>
       ) : (
         actions
