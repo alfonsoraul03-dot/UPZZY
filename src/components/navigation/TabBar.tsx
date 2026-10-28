@@ -17,7 +17,7 @@ export const TABS: Record<string, { label: string; icon: IconName }> = {
 };
 
 /** Icons with small labels, and the camera in the middle for today's challenge. */
-export function TabBar({ state, navigation }: BottomTabBarProps) {
+export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -30,10 +30,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         const color = focused ? theme.text : theme.textMuted;
 
         const onPress = () => {
-          const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+          const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
           if (!focused && !event.defaultPrevented) {
             haptic('tap');
-            navigation.navigate(route.name, route.params);
+            navigateToTab(route.key);
           }
         };
 
