@@ -31,5 +31,5 @@ Reglas (todas en el servidor):
 
 ## Base técnica que ya existe
 
-- Expo SDK 57 + TypeScript + Expo Router.
+- Expo SDK 58 + TypeScript + Expo Router.
 - Supabase: perfiles, roles, registro de auditoría, challenges, fotos, reacciones, puntos, seguir, mensajes, reportes y bloqueos, con tests de seguridad (`npm run test:db`).

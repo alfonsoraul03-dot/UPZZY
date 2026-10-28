@@ -12,7 +12,7 @@ App móvil (iOS y Android) de UPZZY: un challenge de foto al día que sale a una
 
 | Parte | Qué usamos | Por qué |
 | --- | --- | --- |
-| App | Expo (SDK 57) + React Native + TypeScript | Una sola base de código para iPhone y Android, y puedes probarla en tu móvil al instante con Expo Go. |
+| App | Expo (SDK 58) + React Native + TypeScript | Una sola base de código para iPhone y Android, y puedes probarla en tu móvil al instante con Expo Go. |
 | Navegación | Expo Router | Cada archivo en `src/app/` es una pantalla. |
 | Backend | Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) | Base de datos real con seguridad por filas (RLS), login, fotos y chat en tiempo real. |
 | Builds | EAS Build | Genera las apps para App Store y Google Play en la nube, sin Xcode. |
