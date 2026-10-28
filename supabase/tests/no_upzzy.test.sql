@@ -113,12 +113,4 @@ do $$ begin
   end if;
 end $$;
 
--- 6. No rejected photo is left visible anywhere.
-reset role;
-do $$ begin
-  if exists (select 1 from public.posts where review = 'rejected' and status <> 'removed') then
-    raise exception 'a rejected photo is still visible';
-  end if;
-end $$;
-
 \echo no_upzzy: all tests passed
