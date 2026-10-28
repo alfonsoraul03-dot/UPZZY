@@ -58,10 +58,19 @@ npx supabase functions deploy apple-revoke
 1. En console.cloud.google.com, crea un proyecto y configura la **OAuth consent screen** como External, con nombre upzzy.
 2. En Credentials → Create credentials → OAuth client ID, elige el tipo **Web application**. Pon como redirect URI `https://invplnoxmxoqndfyblej.supabase.co/auth/v1/callback`.
 3. En Supabase → Providers → **Google**, actívalo y pega el Client ID y el Secret.
+4. Mientras pruebas, añade tu email en Google Auth Platform → Audience → **Test users**. El día del lanzamiento pulsa **Publish app** ahí mismo; si no, solo podrán entrar los usuarios de prueba.
 
 ## 7. URLs en Supabase
 
 En Authentication → URL Configuration → Redirect URLs, añade `upzzy://auth`.
+
+### Correo propio (SMTP)
+
+El correo que trae Supabase solo llega a los miembros de tu equipo de Supabase y manda muy pocos por hora. Los clientes que entren con email no recibirían nada.
+
+1. Crea una cuenta en un servicio de correo (por ejemplo Resend) y verifica tu dominio `upzzyworld.com`.
+2. En Supabase → Authentication → **SMTP Settings**, activa el SMTP propio y pega los datos que te da ese servicio. Remitente: `hello@upzzyworld.com`, nombre `upzzy`.
+3. En Authentication → Emails, en las plantillas **Magic link or OTP** y **Confirm signup**, añade al final `<p>your code: {{ .Token }}</p>`. Así el email trae un código para escribir en la app, además del enlace.
 
 ## 8. Probar en tu iPhone (development build)
 
@@ -70,7 +79,7 @@ npx eas-cli@latest device:create
 npx eas-cli@latest build --profile development --platform ios
 ```
 
-Instálala desde el enlace que te da EAS y abre `npx expo start`. Prueba esto:
+Instálala desde el enlace que te da EAS y abre `npx expo start` (sin `--go`: así el QR es para la app instalada). Prueba esto:
 
 - entrar con Apple y con Google;
 - meter un código;

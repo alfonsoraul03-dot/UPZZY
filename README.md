@@ -29,11 +29,11 @@ Necesitas [Node.js](https://nodejs.org) 20 o superior (compruébalo con `node -v
    ```
 2. Arranca el servidor de desarrollo:
    ```bash
-   npx expo start
+   npx expo start --go
    ```
 3. En tu iPhone o Android instala **Expo Go** desde la App Store o Google Play.
 4. Escanea el código QR que aparece en la terminal (con la cámara en iPhone, o desde Expo Go en Android). El móvil y el Mac tienen que estar en la misma red wifi.
-   - Si no conecta, para el servidor con `Ctrl+C` y prueba `npx expo start --tunnel`.
+   - Si no conecta, para el servidor con `Ctrl+C` y prueba `npx expo start --go --tunnel`.
 5. Para verla en el navegador del Mac pulsa `w` en la terminal.
 
 La app necesita Supabase: mira la sección siguiente. Sin Supabase verás "not connected yet.".
@@ -62,7 +62,7 @@ La app necesita Supabase: mira la sección siguiente. Sin Supabase verás "not c
    ```
    La primera es para probar con Expo Go; la segunda, para la app publicada. Abre el email **en el móvil** y toca el enlace: se abre la app y ya estás dentro.
 6. Mientras desarrollas puedes entrar sin email: en **Authentication → Sign In / Providers** activa **Allow anonymous sign-ins**. Con eso, en desarrollo la pantalla de entrar muestra el botón "skip (dev only)", que entra con una cuenta de prueba sin email. En la app publicada no sale.
-7. Reinicia Expo con `npx expo start --clear` para que lea el `.env`.
+7. Reinicia Expo con `npx expo start --go --clear` para que lea el `.env`.
 8. Para hacerte administrador, regístrate en la app y luego abre **SQL Editor** en Supabase y ejecuta:
    ```sql
    insert into public.user_roles (user_id, role)
