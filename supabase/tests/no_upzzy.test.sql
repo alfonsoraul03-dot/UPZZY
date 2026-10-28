@@ -113,3 +113,4 @@ do $$ begin
     raise exception 'approval undid a moderation removal';
   end if;
 end $$;
+\echo no_upzzy: all tests passed

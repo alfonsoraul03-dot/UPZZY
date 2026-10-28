@@ -110,6 +110,8 @@ begin
   end;
 end $$;
 reset role;
+-- Others only see photos staff approved (approved_only.test.sql covers the wait).
+update public.posts set review = 'approved';
 
 -- 5. Anonymous visitors see the global feed and the photo, but cannot post.
 select pg_temp.act_as('10000000-0000-0000-0000-000000000002');

@@ -9,16 +9,19 @@ PG_BIN="${PG_BIN:-$(dirname "$(command -v initdb 2>/dev/null || ls -d /usr/lib/p
 RUN_AS=()
 if [ "$(id -u)" = "0" ]; then RUN_AS=(sudo -u postgres); fi
 
-WORK="$(mktemp -d)"
+# A short path keeps the socket under macOS's length limit, and a plain
+# locale stops Homebrew's PostgreSQL from refusing to start.
+export LC_ALL=C
+WORK="$(mktemp -d /tmp/upzzy-db.XXXXXX)"
 chmod 777 "$WORK"
 PORT="${PGTEST_PORT:-55432}"
-cleanup() { "${RUN_AS[@]}" "$PG_BIN/pg_ctl" -D "$WORK/data" -m immediate stop >/dev/null 2>&1 || true; rm -rf "$WORK"; }
+cleanup() { ${RUN_AS[@]+"${RUN_AS[@]}"} "$PG_BIN/pg_ctl" -D "$WORK/data" -m immediate stop >/dev/null 2>&1 || true; rm -rf "$WORK"; }
 trap cleanup EXIT
 
-"${RUN_AS[@]}" "$PG_BIN/initdb" -D "$WORK/data" -U postgres --auth=trust >/dev/null
-"${RUN_AS[@]}" "$PG_BIN/pg_ctl" -D "$WORK/data" -o "-p $PORT -k $WORK -c listen_addresses=''" -l "$WORK/log" -w start >/dev/null
+${RUN_AS[@]+"${RUN_AS[@]}"} "$PG_BIN/initdb" -D "$WORK/data" -U postgres --auth=trust >/dev/null
+${RUN_AS[@]+"${RUN_AS[@]}"} "$PG_BIN/pg_ctl" -D "$WORK/data" -o "-p $PORT -k $WORK -c listen_addresses=''" -l "$WORK/log" -w start >/dev/null
 
-PSQL=("${RUN_AS[@]}" "$PG_BIN/psql" -h "$WORK" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 -q)
+PSQL=(${RUN_AS[@]+"${RUN_AS[@]}"} "$PG_BIN/psql" -h "$WORK" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 -q)
 
 # Migrate one template database, then give every test file a fresh copy of it.
 "${PSQL[@]}" -d postgres -c "create database migrated"

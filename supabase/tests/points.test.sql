@@ -84,7 +84,11 @@ begin
 end $$;
 reset role;
 
--- 4. Likes from others are +1 each.
+-- 4. Likes from others are +1 each (once staff approved the photo; before
+--    that nobody else can see or like it, see approved_only.test.sql).
+select pg_temp.act_as('40000000-0000-0000-0000-00000000000d');
+select public.review_post(v::uuid, true) from t where k = 'post';
+reset role;
 select pg_temp.act_as('40000000-0000-0000-0000-000000000002');
 insert into public.post_likes (post_id) select v::uuid from t where k = 'post';
 do $$ begin

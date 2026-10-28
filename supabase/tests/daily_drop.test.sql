@@ -103,6 +103,9 @@ do $$ begin
 end $$;
 reset role;
 
+-- Others only react to photos staff approved (approved_only.test.sql covers the wait).
+update public.posts set review = 'approved';
+
 -- 5. Photo reactions: own folder only, one per person (replacing returns the old photo), public like the post.
 select pg_temp.act_as('20000000-0000-0000-0000-000000000002');
 insert into storage.objects (bucket_id, name)
