@@ -55,7 +55,9 @@ async function browser(provider: Provider): Promise<boolean> {
     if (error) throw error;
     return false;
   }
-  const redirectTo = Linking.createURL('auth');
+  // On iPhone the secure browser catches any upzzy:// redirect itself, so this
+  // also works in Expo Go, whose exp://10.x / 192.168.x address Supabase refuses.
+  const redirectTo = Platform.OS === 'ios' ? 'upzzy://auth' : Linking.createURL('auth');
   const { data, error } = await supabase!.auth.signInWithOAuth({ provider, options: { redirectTo, skipBrowserRedirect: true } });
   if (error) throw error;
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
