@@ -24,6 +24,7 @@ insert into auth.users (id, email) values
 insert into public.members (user_id) values
   ('60000000-0000-0000-0000-000000000001'),
   ('60000000-0000-0000-0000-000000000003');
+insert into public.user_consents (user_id, adult_at, content_rules_at) select id, now(), now() from auth.users on conflict do nothing;
 
 -- 1. You save your own phone; bad tokens and other people's tokens are refused.
 select pg_temp.act_as('60000000-0000-0000-0000-000000000001');

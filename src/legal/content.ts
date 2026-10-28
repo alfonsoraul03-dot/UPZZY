@@ -5,7 +5,7 @@
 
 /** Where people write to us: upzzy customer service. */
 export const CONTACT_EMAIL = 'upzzy.1@gmail.com';
-export const UPDATED = '21 october 2026';
+export const UPDATED = '28 october 2026';
 
 export type LegalDoc = { title: string; sections: { heading: string; body: string[] }[] };
 
@@ -22,7 +22,8 @@ export const PRIVACY: LegalDoc = {
       heading: 'what we keep',
       body: [
         'your account: the email apple, google or you give us when you sign in, and the username you pick.',
-        'what you post: challenge photos, reaction selfies, captions, likes, follows, reports, blocks and messages with friends.',
+        'what you post: challenge photos, reaction selfies, captions, likes, follows, reports and blocks.',
+        'that you are 18 or over (we never keep your birth date), that you accepted the photo rules, and your yes or no to us sharing your photos on social media, with the date of each answer.',
         'your garment code, so each code is used once.',
         "your phone's push token, so we can tell you when the challenge drops.",
         'basic records of sensitive actions (like reviewing photos or deleting an account), to keep the app safe.',
@@ -32,8 +33,9 @@ export const PRIVACY: LegalDoc = {
     {
       heading: 'who sees it',
       body: [
-        'photos and your username are seen by other members. messages are seen only by you and the friend you talk to. reports are seen only by our staff.',
+        'photos and your username are seen by other members once staff approved the photo. reports are seen only by our staff.',
         'staff look at challenge photos to check an upzzy piece is in them before points count.',
+        "only if you say yes in the app, we may post your approved challenge photos on upzzy's social media (like instagram and tiktok). it's optional and changes nothing in the app. you can take it back any time in settings, and we stop using them from then on.",
       ],
     },
     {
@@ -45,14 +47,14 @@ export const PRIVACY: LegalDoc = {
     {
       heading: 'how long',
       body: [
-        'until you delete your account. you can do it any time in the app: you → delete account. it removes your photos, posts, likes, follows and messages right away.',
+        'until you delete your account. you can do it any time in the app: you → settings → delete account. it removes your photos, posts, likes and follows right away.',
       ],
     },
     {
       heading: 'your rights',
       body: [
         `you can ask to see, fix, export or delete your data, or object to how we use it. write to ${CONTACT_EMAIL} and we answer within 30 days. if you are in the eu you can also complain to your data protection authority (in spain, the aepd).`,
-        'upzzy is for people 16 and over.',
+        `upzzy is for people 18 and over. under 18 only with the consent of a parent or guardian, by email to ${CONTACT_EMAIL}.`,
       ],
     },
     {
@@ -68,20 +70,20 @@ export const TERMS: LegalDoc = {
     {
       heading: 'the deal',
       body: [
-        'by using upzzy you agree to these terms. you need to be 16 or over and to have unlocked the app with the code from an upzzy piece.',
+        `by using upzzy you agree to these terms. you need to be 18 or over (or have a parent or guardian's consent, sent to ${CONTACT_EMAIL}) and to have unlocked the app with the code from an upzzy piece.`,
       ],
     },
     {
       heading: 'zero tolerance',
       body: [
-        'no nudity, violence, hate, harassment, threats, spam, or anything illegal. no photos of people who did not agree to it.',
+        'photos must be fit for all ages. no nudity or anything sexual, violence, drugs, hate, harassment, threats, spam, or anything illegal. no photos of people who did not agree to it.',
         'anyone can report a photo or block a person from its menu. three reports hide a photo at once. our staff look at every report within 24 hours, remove what breaks these rules and ban the people who posted it.',
       ],
     },
     {
       heading: 'your photos',
       body: [
-        'your photos stay yours. you let us show them inside the app, and on upzzy channels only if we ask you first.',
+        "your photos stay yours. you let us show them inside the app. we share them on upzzy's social media only if you said yes in the app, and you can take that back any time in settings.",
         'you can delete your account and everything in it whenever you want.',
       ],
     },

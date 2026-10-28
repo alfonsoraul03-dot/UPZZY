@@ -16,6 +16,7 @@ insert into auth.users (id, email) values
   ('30000000-0000-0000-0000-000000000003', 'tres@test');
 -- Everyone here bought a piece (access.test.sql covers people who did not).
 insert into public.members (user_id) select id from auth.users on conflict do nothing;
+insert into public.user_consents (user_id, adult_at, content_rules_at) select id, now(), now() from auth.users on conflict do nothing;
 update public.profiles set username = 'uno' where id = '30000000-0000-0000-0000-000000000001';
 update public.profiles set username = 'dos' where id = '30000000-0000-0000-0000-000000000002';
 update public.profiles set username = 'tres' where id = '30000000-0000-0000-0000-000000000003';

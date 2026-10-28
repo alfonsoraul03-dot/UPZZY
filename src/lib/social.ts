@@ -376,3 +376,29 @@ export async function redeemCode(code: string): Promise<RedeemResult> {
   if (error) throw error;
   return data as RedeemResult;
 }
+
+export type Consents = { adult: boolean; under_18: boolean; content_rules: boolean; social_ok: boolean; social_answered: boolean };
+
+/** Your answers: 18+, photo rules, and whether UPZZY may share your photos. */
+export async function getMyConsents(): Promise<Consents> {
+  const { data, error } = await client().rpc('my_consents');
+  if (error) throw error;
+  return (Array.isArray(data) ? data[0] : data) as Consents;
+}
+
+/** Sends the birth date to be checked. The server keeps only whether you are 18+. */
+export async function confirmAge(birth: string): Promise<'ok' | 'minor' | 'invalid'> {
+  const { data, error } = await client().rpc('confirm_age', { p_birth: birth });
+  if (error) throw error;
+  return data as 'ok' | 'minor' | 'invalid';
+}
+
+export async function acceptContentRules(): Promise<void> {
+  const { error } = await client().rpc('accept_content_rules');
+  if (error) throw error;
+}
+
+export async function setSocialConsent(ok: boolean): Promise<void> {
+  const { error } = await client().rpc('set_social_consent', { p_ok: ok });
+  if (error) throw error;
+}

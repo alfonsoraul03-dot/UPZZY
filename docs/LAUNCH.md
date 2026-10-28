@@ -129,7 +129,7 @@ npx eas-cli@latest submit --platform android
 En la ficha de cada tienda:
 
 - **Capturas**: 6,7" de iPhone y de Android.
-- **Edad**: 16+.
+- **Edad**: 18+ (en App Store, "17+"; en Google Play, cuestionario IARC con contenido generado por usuarios). La app pide la fecha de nacimiento al entrar.
 - **Contenido generado por usuarios**: sí, con denuncias y bloqueo.
 - **Privacidad**: se recoge email, fotos, mensajes y token de avisos. No hay anuncios ni rastreo.
 

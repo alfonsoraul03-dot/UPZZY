@@ -17,6 +17,7 @@ insert into auth.users (id, email) values
   ('50000000-0000-0000-0000-000000000003', 'other@test');
 insert into public.user_roles (user_id, role) values ('50000000-0000-0000-0000-00000000000d', 'moderator');
 insert into public.members (user_id) values ('50000000-0000-0000-0000-000000000001');
+insert into public.user_consents (user_id, adult_at, content_rules_at) select id, now(), now() from auth.users on conflict do nothing;
 update public.profiles set username = 'member' where id = '50000000-0000-0000-0000-000000000001';
 
 create temp table t (k text primary key, v text);

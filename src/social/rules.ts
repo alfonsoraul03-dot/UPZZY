@@ -124,3 +124,29 @@ export function streakLabel(days: number): string {
   return days === 1 ? '1 day streak' : `${days} day streak`;
 }
 
+
+/** upzzy is for adults. Kept in sync with the server's confirm_age. */
+export const ADULT_AGE = 18;
+
+/** Day, month and year as typed into a real date "YYYY-MM-DD", or null if it is not a date or is in the future. */
+export function birthDate(day: string, month: string, year: string, today: Date): string | null {
+  const d = Number(day);
+  const m = Number(month);
+  const y = Number(year);
+  if (!Number.isInteger(d) || !Number.isInteger(m) || !Number.isInteger(y) || y < 1900) return null;
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null;
+  const iso = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  return iso > madridDay(today) ? null : iso;
+}
+
+/** Whole years between a "YYYY-MM-DD" birth date and today in Madrid. */
+export function ageOn(birth: string, today: Date): number {
+  const [by, bm, bd] = birth.split('-').map(Number);
+  const [ty, tm, td] = madridDay(today).split('-').map(Number);
+  return ty - by - (tm < bm || (tm === bm && td < bd) ? 1 : 0);
+}
+
+function madridDay(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+}

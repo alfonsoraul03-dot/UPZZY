@@ -5,9 +5,10 @@ import { StyleSheet, View } from 'react-native';
 import { LegalLink, SignInOptions } from '@/components/auth/SignInOptions';
 import { Button, Field, Sheet, Text } from '@/components/ui';
 import { useAuthLinks } from '@/hooks/useAuthLinks';
+import { refreshConsents, useConsents } from '@/hooks/useConsents';
 import { useSession } from '@/hooks/useSession';
 import { revokeApple } from '@/lib/oauth';
-import { deleteAccount, friendlyError, getMyProfile, isStaff, setUsername, signOut } from '@/lib/social';
+import { deleteAccount, friendlyError, getMyProfile, isStaff, setSocialConsent, setUsername, signOut } from '@/lib/social';
 import { isPlaceholderUsername } from '@/social/rules';
 import { normalizeUsername, validateUsername } from '@/lib/validation';
 import { space } from '@/theme';
@@ -125,6 +126,7 @@ function SignedIn({ userId }: { userId: string }) {
       ) : null}
       <View style={styles.actions}>
         {staff ? <Button label="staff: reports and upzzy check" onPress={() => router.push('/review')} /> : null}
+        <SocialConsent userId={userId} />
         <Button label="sign out" variant="outline" onPress={() => signOut()} disabled={busy} />
         <Text variant="caption" color="textMuted">
           <LegalLink doc="terms" /> · <LegalLink doc="privacy" />
@@ -144,6 +146,44 @@ function SignedIn({ userId }: { userId: string }) {
   );
 }
 
+/** Your yes or no to UPZZY sharing your approved photos on its social media. */
+function SocialConsent({ userId }: { userId: string }) {
+  const consents = useConsents(userId);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!consents) return null;
+
+  const change = async (ok: boolean) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await setSocialConsent(ok);
+      await refreshConsents(userId);
+    } catch (e) {
+      setError(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <View style={styles.consent}>
+      <Text variant="bodyStrong">your photos on upzzy&apos;s social media</Text>
+      <Text color="textMuted">
+        {consents.social_ok ? 'yes: we may share your approved challenge photos.' : 'no: your photos stay in the app.'}
+      </Text>
+      <Button
+        label={consents.social_ok ? 'stop sharing my photos' : 'let upzzy share my photos'}
+        variant="outline"
+        onPress={() => change(!consents.social_ok)}
+        disabled={busy}
+      />
+      {error ? <Text color="textMuted">{error}</Text> : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  consent: { gap: space.xs },
   actions: { gap: space.md, marginTop: space.xl },
 });

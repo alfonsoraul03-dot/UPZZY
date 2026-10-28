@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Button, Field, Screen, Text } from '@/components/ui';
 import { setAccess } from '@/hooks/useAccess';
+import { useConsents } from '@/hooks/useConsents';
 import { useSession } from '@/hooks/useSession';
 import { friendlyError, redeemCode, signOut, type RedeemResult } from '@/lib/social';
 import { space } from '@/theme';
@@ -19,6 +20,7 @@ const PROBLEMS: Record<Exclude<RedeemResult, 'ok'>, string> = {
 /** The door: upzzy is for people who bought a piece. The code comes in the package. */
 export default function UnlockScreen() {
   const { userId, ready } = useSession();
+  const consents = useConsents(userId);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +46,7 @@ export default function UnlockScreen() {
   const enough = code.replace(/[^a-z0-9]/gi, '').length >= 10;
 
   if (ready && !userId) return <Redirect href="/sign-in" />;
+  if (consents && !consents.adult) return <Redirect href="/age" />;
 
   return (
     <Screen

@@ -47,6 +47,8 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="sign-in" options={{ gestureEnabled: false, animation: 'fade' }} />
+        <Stack.Screen name="age" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="consent" options={{ gestureEnabled: false }} />
         <Stack.Screen name="account" options={{ presentation: 'modal' }} />
         <Stack.Screen name="capture" options={{ presentation: 'modal' }} />
         <Stack.Screen name="react" options={{ presentation: 'modal' }} />
