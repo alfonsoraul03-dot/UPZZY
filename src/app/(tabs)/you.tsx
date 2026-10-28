@@ -32,7 +32,7 @@ export default function YouScreen() {
           <Text variant="title">your photos, streak and points live here.</Text>
           <Text color="textMuted">sign in to start.</Text>
           <Button label="sign in" onPress={() => router.push('/account')} />
-          <Button label="shop drop 001" variant="outline" onPress={() => router.push('/drop')} />
+          <Button label="shop drop 001" variant="outline" onPress={() => router.push('/shop')} />
         </View>
       </Screen>
     );
@@ -46,7 +46,7 @@ export default function YouScreen() {
         actions={
           <View style={styles.actions}>
             <Button label="settings" variant="outline" onPress={() => router.push('/account')} style={styles.half} />
-            <Button label="shop" variant="outline" onPress={() => router.push('/drop')} style={styles.half} />
+            <Button label="chats" variant="outline" onPress={() => router.push('/chats')} style={styles.half} />
           </View>
         }
       />

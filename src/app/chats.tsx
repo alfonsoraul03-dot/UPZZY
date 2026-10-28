@@ -3,13 +3,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Wordmark } from '@/components/brand/Wordmark';
-import { Avatar, Button, Screen, Text } from '@/components/ui';
+import { Avatar, Button, Icon, Screen, Text } from '@/components/ui';
 import { useSession } from '@/hooks/useSession';
 import { friendlyError, getChats, onNewMessage, type Chat } from '@/lib/social';
 import { chatTime, displayName } from '@/social/rules';
 import { fonts, space, useTheme } from '@/theme';
 
-/** Messages with friends: people you follow who follow you back. */
+/** Messages with friends: people you follow who follow you back. Opened from "you". */
 export default function ChatsScreen() {
   const theme = useTheme();
   const { userId, ready, configured } = useSession();
@@ -37,6 +37,14 @@ export default function ChatsScreen() {
 
   const header = (
     <View style={styles.header}>
+      <Pressable
+        onPress={() => (router.canGoBack() ? router.back() : router.replace('/you'))}
+        accessibilityRole="button"
+        accessibilityLabel="back"
+        hitSlop={12}
+        style={styles.back}>
+        <Icon name="back" color={theme.text} />
+      </Pressable>
       <Wordmark />
     </View>
   );
@@ -131,6 +139,7 @@ export default function ChatsScreen() {
 
 const styles = StyleSheet.create({
   header: { height: 56, alignItems: 'center', justifyContent: 'center' },
+  back: { position: 'absolute', left: space.lg, top: 16 },
   gap: { gap: space.xs },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.sm },
   middle: { flex: 1, gap: 2 },

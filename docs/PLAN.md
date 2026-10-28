@@ -2,13 +2,14 @@
 
 ## Ahora: un challenge al día, tipo BeReal
 
-Tres pestañas:
+Cuatro pestañas:
 
 | Pestaña | Qué es |
 | --- | --- |
 | **home** | Las fotos del challenge de hoy, una por pantalla. Arriba **global** o **friends**. Cada foto lleva en pequeño las reacciones: selfies de la gente con la cámara frontal (doble toque o "react"). Mientras el challenge de hoy no ha salido se ven las fotos de ayer. |
 | **ranking** | Puntos del mes, global y amigos. |
-| **you** | Tu perfil: cuadrícula de tus fotos, racha de días seguidos y puntos. Ajustes y tienda. Tocando un nombre ves el perfil de otra persona y puedes seguirla. |
+| **shop** | La tienda dentro de la app: las prendas del drop con fotos, color, talla y precio, leídos en directo de upzzyworld.com. Bolsa guardada en el móvil; se paga en el checkout de la tienda, que se abre encima de la app (tarjeta y Apple Pay). |
+| **you** | Tu perfil: cuadrícula de tus fotos, racha de días seguidos y puntos. Ajustes y chats con amigos. Tocando un nombre ves el perfil de otra persona y puedes seguirla. |
 
 Reglas (todas en el servidor):
 - El challenge sale cada día a una hora al azar entre las 9:00 y las 21:00 (Madrid), la misma para todos. Antes de esa hora nadie ve ni el título.
