@@ -64,6 +64,14 @@ npx supabase functions deploy apple-revoke
 
 En Authentication → URL Configuration → Redirect URLs, añade `upzzy://auth`.
 
+### Correo propio (SMTP)
+
+El correo que trae Supabase solo llega a los miembros de tu equipo de Supabase y manda muy pocos por hora. Los clientes que entren con email no recibirían nada.
+
+1. Crea una cuenta en un servicio de correo (por ejemplo Resend) y verifica tu dominio `upzzyworld.com`.
+2. En Supabase → Authentication → **SMTP Settings**, activa el SMTP propio y pega los datos que te da ese servicio. Remitente: `hello@upzzyworld.com`, nombre `upzzy`.
+3. En Authentication → Emails, en las plantillas **Magic link or OTP** y **Confirm signup**, añade al final `<p>your code: {{ .Token }}</p>`. Así el email trae un código para escribir en la app, además del enlace.
+
 ## 8. Probar en tu iPhone (development build)
 
 ```bash
