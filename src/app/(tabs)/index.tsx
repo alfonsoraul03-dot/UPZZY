@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MistakeNotice } from '@/components/social/MistakeNotice';
@@ -35,6 +36,7 @@ import {
   type FeedScope,
 } from '@/social/rules';
 import { fonts, layout, radius, space, useTheme } from '@/theme';
+import { duration, enter, exit, timing } from '@/theme/motion';
 
 type Load = 'loading' | 'ready' | 'error';
 
@@ -334,6 +336,20 @@ export default function HomeScreen() {
   );
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+/** A small bloom when something turns on, like a heart being liked. Nothing when it turns off. */
+function Pop({ on, children }: { on: boolean; children: React.ReactNode }) {
+  const scale = useSharedValue(1);
+  const was = useRef(on);
+  useEffect(() => {
+    if (on && !was.current) scale.set(withSequence(withTiming(1.22, timing(duration.press)), withTiming(1, timing(duration.micro))));
+    was.current = on;
+  }, [on, scale]);
+  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  return <Animated.View style={style}>{children}</Animated.View>;
+}
+
 function pathsOf(posts: FeedPost[]): string[] {
   return posts.flatMap((p) => [p.image_path, ...p.reactions.map((r) => r.image_path)]);
 }
@@ -365,12 +381,22 @@ function PostPage({
   const onPhoto = [styles.shadow, { color: theme.onPhoto, textShadowColor: theme.photoShadow }];
   const openProfile = () => router.push({ pathname: '/user/[id]', params: { id: post.user_id } });
 
+  // The big heart that blooms over the photo on a double tap.
+  const burst = useSharedValue(0);
+  const burstStyle = useAnimatedStyle(() => ({
+    opacity: burst.value,
+    transform: [{ scale: 0.7 + burst.value * 0.3 }],
+  }));
+
   const onPress = () => {
     const at = Date.now();
     if (isDoubleTap(lastTap.current, at)) {
       lastTap.current = 0;
       // Double tap likes, like on TikTok. It never unlikes.
-      if (!isMine) onLike(post, 'like');
+      if (!isMine) {
+        burst.set(withSequence(withTiming(1, timing(duration.micro)), withTiming(0, timing(duration.image))));
+        onLike(post, 'like');
+      }
     } else {
       lastTap.current = at;
     }
@@ -380,9 +406,12 @@ function PostPage({
 
   return (
     <Pressable onPress={onPress} style={{ height, backgroundColor: theme.surface }} accessibilityLabel={`photo by ${displayName(post.username)}`}>
-      {url ? <Image source={{ uri: url }} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} /> : null}
+      {url ? <Image source={{ uri: url }} style={StyleSheet.absoluteFill} contentFit="cover" transition={240} /> : null}
       <Shade from="top" height={190} strength={0.55} />
       <Shade from="bottom" height={340} strength={0.8} />
+      <Animated.View pointerEvents="none" style={[styles.burst, burstStyle]}>
+        <Icon name="heart" color={theme.onPhoto} size={96} weight={1.5} filled />
+      </Animated.View>
 
       <View style={styles.side}>
         <View style={styles.author}>
@@ -390,14 +419,15 @@ function PostPage({
             <Avatar name={post.username} size={50} ring={theme.onPhoto} />
           </Pressable>
           {!isMine && !post.following ? (
-            <Pressable
+            <AnimatedPressable
+              exiting={exit.fade}
               onPress={() => onFollow(post)}
               accessibilityRole="button"
               accessibilityLabel="follow"
               hitSlop={8}
               style={[styles.followBadge, { backgroundColor: theme.text }]}>
               <Icon name="plus" color={theme.onText} size={14} weight={3} />
-            </Pressable>
+            </AnimatedPressable>
           ) : null}
         </View>
 
@@ -408,7 +438,9 @@ function PostPage({
             accessibilityLabel={post.liked ? 'unlike' : 'like'}
             accessibilityState={{ selected: post.liked }}
             style={styles.action}>
-            <Icon name="heart" color={theme.onPhoto} size={34} weight={2} filled={post.liked} />
+            <Pop on={post.liked}>
+              <Icon name="heart" color={theme.onPhoto} size={34} weight={2} filled={post.liked} />
+            </Pop>
             <Text style={[styles.actionLabel, onPhoto]}>{post.like_count}</Text>
           </Pressable>
         ) : (
@@ -496,8 +528,16 @@ function PostMenu({ post, onClose, onDone }: { post: FeedPost; onClose: () => vo
   };
 
   return (
-    <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: theme.photoScrim }]} onPress={onClose} accessibilityLabel="close">
-      <Pressable style={[styles.menu, { backgroundColor: theme.background, paddingBottom: insets.bottom + space.lg }]}>
+    <AnimatedPressable
+      entering={enter.fade}
+      exiting={exit.fade}
+      style={[StyleSheet.absoluteFill, { backgroundColor: theme.photoScrim }]}
+      onPress={onClose}
+      accessibilityLabel="close">
+      <AnimatedPressable
+        entering={enter.sheet}
+        exiting={exit.sheet}
+        style={[styles.menu, { backgroundColor: theme.background, paddingBottom: insets.bottom + space.lg }]}>
         <Text variant="label" color="textMuted">
           {displayName(post.username)}
         </Text>
@@ -506,8 +546,8 @@ function PostMenu({ post, onClose, onDone }: { post: FeedPost; onClose: () => vo
         <Button label="block this person" variant="outline" disabled={busy} onPress={() => run(() => blockUser(post.user_id), true)} />
         <Button label="cancel" disabled={busy} onPress={onClose} />
         {error ? <Text color="textMuted">{error}</Text> : null}
-      </Pressable>
-    </Pressable>
+      </AnimatedPressable>
+    </AnimatedPressable>
   );
 }
 
@@ -567,6 +607,7 @@ const styles = StyleSheet.create({
   shadow: { textShadowRadius: 6, textShadowOffset: { width: 0, height: 1 } },
   side: { position: 'absolute', right: space.md, bottom: space.xl, alignItems: 'center', gap: space.xl },
   author: { alignItems: 'center', marginBottom: space.sm },
+  burst: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   followBadge: { position: 'absolute', bottom: -10, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   action: { alignItems: 'center', gap: 3 },
   actionLabel: { fontFamily: fonts.bodyBold, fontSize: 12, lineHeight: 15 },

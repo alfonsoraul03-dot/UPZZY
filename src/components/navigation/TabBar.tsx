@@ -1,12 +1,14 @@
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { router } from 'expo-router';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, Text, type IconName } from '@/components/ui';
 import { haptic } from '@/lib/haptics';
 import { fonts, layout, radius, useTheme } from '@/theme';
+import { duration, timing } from '@/theme/motion';
 
 /** Route name → label and icon. The order of routes comes from `(tabs)/_layout.tsx`. */
 export const TABS: Record<string, { label: string; icon: IconName }> = {
@@ -45,7 +47,9 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
               accessibilityState={{ selected: focused }}
               accessibilityLabel={tab.label}
               style={styles.tab}>
-              <Icon name={tab.icon} color={color} size={25} weight={focused ? 2.3 : 1.8} />
+              <Settle focused={focused}>
+                <Icon name={tab.icon} color={color} size={25} weight={focused ? 2.3 : 1.8} />
+              </Settle>
               <Text style={[styles.label, { color, fontFamily: focused ? fonts.bodyBold : fonts.bodyMedium }]}>{tab.label}</Text>
             </Pressable>
             {route.name === 'ranking' ? (
@@ -67,6 +71,16 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
       })}
     </View>
   );
+}
+
+/** The chosen tab's icon rises a hair; the others rest. */
+function Settle({ focused, children }: { focused: boolean; children: React.ReactNode }) {
+  const on = useSharedValue(focused ? 1 : 0);
+  useEffect(() => {
+    on.set(withTiming(focused ? 1 : 0, timing(duration.micro)));
+  }, [focused, on]);
+  const style = useAnimatedStyle(() => ({ transform: [{ translateY: -on.value * 1.5 }, { scale: 0.96 + on.value * 0.04 }] }));
+  return <Animated.View style={style}>{children}</Animated.View>;
 }
 
 const styles = StyleSheet.create({

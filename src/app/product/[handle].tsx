@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BagButton } from '@/components/shop/BagButton';
@@ -11,6 +12,10 @@ import { haptic } from '@/lib/haptics';
 import { getProduct } from '@/lib/shop';
 import { canPick, colourPhotos, findVariant, formatPrice, imagesFor, priceLabel, soldOut, type ShopProduct } from '@/social/shop';
 import { fonts, layout, radius, space, useTheme } from '@/theme';
+import { duration, easeOut } from '@/theme/motion';
+
+// The current-photo dot stretches across smoothly when you swipe.
+const DOT_MOVE = LinearTransition.duration(duration.micro).easing(easeOut);
 
 /** One piece: its photos, colour and size, and "add to bag" in a bar at the bottom. */
 export default function ProductScreen() {
@@ -112,14 +117,18 @@ export default function ProductScreen() {
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
             renderItem={({ item }) => (
-              <Image source={{ uri: item }} style={{ width, aspectRatio: 4 / 5, backgroundColor: theme.surface }} contentFit="cover" transition={200} />
+              <Image source={{ uri: item }} style={{ width, aspectRatio: 4 / 5, backgroundColor: theme.surface }} contentFit="cover" transition={240} />
             )}
           />
           <Shade from="top" height={120} strength={0.45} />
           {photos.length > 1 ? (
             <View style={styles.dots} pointerEvents="none">
               {photos.map((src, i) => (
-                <View key={src} style={[styles.dot, { backgroundColor: theme.onPhoto, opacity: i === page ? 1 : 0.4, width: i === page ? 18 : 6 }]} />
+                <Animated.View
+                  key={src}
+                  layout={DOT_MOVE}
+                  style={[styles.dot, { backgroundColor: theme.onPhoto, opacity: i === page ? 1 : 0.4, width: i === page ? 18 : 6 }]}
+                />
               ))}
             </View>
           ) : null}

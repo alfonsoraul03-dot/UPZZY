@@ -1,8 +1,10 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Wordmark } from '@/components/brand/Wordmark';
 import { layout, space, type as typeScale, useTheme } from '@/theme';
+import { enter } from '@/theme/motion';
 
 import { Text } from './Text';
 
@@ -25,8 +27,14 @@ export function Onboarding({ children, footer }: { children: React.ReactNode; fo
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + space.xl }]}>
-        <View style={styles.body}>{children}</View>
-        {footer ? <View style={styles.footer}>{footer}</View> : null}
+        <Animated.View entering={enter.rise} style={styles.body}>
+          {children}
+        </Animated.View>
+        {footer ? (
+          <Animated.View entering={enter.fade.delay(120)} style={styles.footer}>
+            {footer}
+          </Animated.View>
+        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -133,6 +133,7 @@ export function Profile({ userId, me, actions }: ProfileProps) {
                   source={urls[p.image_path] ? { uri: urls[p.image_path] } : undefined}
                   style={StyleSheet.absoluteFill}
                   contentFit="cover"
+                  transition={240}
                   accessibilityLabel={p.challenges ? `${shortDay(p.challenges.day)}: ${p.challenges.title}` : 'challenge photo'}
                 />
                 <Text style={[styles.day, { color: theme.onPhoto, textShadowColor: theme.photoShadow }]}>

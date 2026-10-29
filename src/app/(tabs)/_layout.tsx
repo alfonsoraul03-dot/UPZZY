@@ -27,7 +27,7 @@ export default function TabsLayout() {
   if (configured && ready && access === false) return <Redirect href="/unlock" />;
 
   return (
-    <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <TabBar {...props} />}>
+    <Tabs screenOptions={{ headerShown: false, animation: 'fade' }} tabBar={(props) => <TabBar {...props} />}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="ranking" />
       <Tabs.Screen name="shop" />

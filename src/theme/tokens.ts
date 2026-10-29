@@ -80,7 +80,7 @@ export const colors: Record<'light' | 'dark', ColorTokens> = {
   // The app is dark, like BeReal and TikTok: photos carry the colour.
   // Warm black and warm white rather than pure, so it reads as a fashion label, not a terminal.
   dark: {
-    background: '#080808',
+    background: '#050505',
     surface: '#141414',
     border: '#292929',
     text: '#F7F6F3',

@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { haptic } from '@/lib/haptics';
 import { fonts, space, useTheme } from '@/theme';
+import { duration, timing } from '@/theme/motion';
 
 import { Text } from './Text';
 
@@ -33,12 +36,29 @@ export function Toggle<T extends string>({ options, value, onChange, onPhoto }: 
             accessibilityState={{ selected }}
             hitSlop={10}
             style={styles.item}>
-            <Text style={[styles.label, onPhoto && [styles.shadow, { textShadowColor: theme.photoShadow }], { color, opacity: selected ? 1 : 0.6 }]}>{option}</Text>
-            <View style={[styles.bar, { backgroundColor: selected ? color : 'transparent' }]} />
+            <Choice selected={selected} color={color}>
+              <Text style={[styles.label, onPhoto && [styles.shadow, { textShadowColor: theme.photoShadow }], { color }]}>{option}</Text>
+            </Choice>
           </Pressable>
         );
       })}
     </View>
+  );
+}
+
+/** The chosen word comes forward and its bar grows in; the other steps back. */
+function Choice({ selected, color, children }: { selected: boolean; color: string; children: React.ReactNode }) {
+  const on = useSharedValue(selected ? 1 : 0);
+  useEffect(() => {
+    on.set(withTiming(selected ? 1 : 0, timing(duration.micro)));
+  }, [selected, on]);
+  const word = useAnimatedStyle(() => ({ opacity: 0.55 + on.value * 0.45 }));
+  const bar = useAnimatedStyle(() => ({ opacity: on.value, transform: [{ scaleX: 0.4 + on.value * 0.6 }] }));
+  return (
+    <>
+      <Animated.View style={word}>{children}</Animated.View>
+      <Animated.View style={[styles.bar, { backgroundColor: color }, bar]} />
+    </>
   );
 }
 

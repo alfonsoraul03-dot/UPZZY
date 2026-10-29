@@ -82,7 +82,7 @@ function ProductCard({ product }: { product: ShopProduct }) {
       style={({ pressed }) => [styles.card, { backgroundColor: theme.surface, transform: [{ scale: pressed ? 0.985 : 1 }] }]}>
       <View>
         {product.images[0] ? (
-          <Image source={{ uri: product.images[0].src }} style={styles.photo} contentFit="cover" transition={200} />
+          <Image source={{ uri: product.images[0].src }} style={styles.photo} contentFit="cover" transition={240} />
         ) : (
           <View style={styles.photo} />
         )}
