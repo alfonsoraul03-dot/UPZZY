@@ -45,7 +45,7 @@ export function Toggle<T extends string>({ options, value, onChange, onPhoto }: 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space.xl, justifyContent: 'center' },
   item: { alignItems: 'center', gap: 6 },
-  label: { fontFamily: fonts.bodyBold, fontSize: 17, lineHeight: 22 },
+  label: { fontFamily: fonts.bodySemiBold, fontSize: 16, lineHeight: 21 },
   shadow: { textShadowRadius: 6, textShadowOffset: { width: 0, height: 1 } },
   bar: { width: 28, height: 3, borderRadius: 2 },
 });

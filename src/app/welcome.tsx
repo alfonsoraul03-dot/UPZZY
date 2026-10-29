@@ -53,6 +53,6 @@ const styles = StyleSheet.create({
   gap: { gap: space.xs },
   list: { gap: space.sm },
   rule: { flexDirection: 'row', gap: space.md, padding: space.lg, borderRadius: radius.lg, alignItems: 'center' },
-  number: { fontFamily: fonts.bodyHeavy, fontSize: 22, width: 22 },
+  number: { fontFamily: fonts.bodySemiBold, fontSize: 20, width: 22 },
   ruleText: { flex: 1, gap: 2 },
 });

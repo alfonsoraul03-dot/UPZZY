@@ -573,9 +573,9 @@ const styles = StyleSheet.create({
   face: { width: 32, height: 32, borderRadius: 16, borderWidth: 2 },
   noFace: { borderStyle: 'dashed' },
   caption: { position: 'absolute', left: space.lg, right: 92, bottom: space.xl, gap: space.sm, alignItems: 'flex-start' },
-  name: { fontFamily: fonts.bodyHeavy, fontSize: 18, lineHeight: 23 },
+  name: { fontFamily: fonts.bodyBold, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
   points: { borderRadius: radius.sm + 4, paddingHorizontal: space.sm, paddingVertical: 4 },
-  pointsText: { fontFamily: fonts.bodyHeavy, fontSize: 12, lineHeight: 15, letterSpacing: 0.3, textTransform: 'uppercase' },
+  pointsText: { fontFamily: fonts.bodySemiBold, fontSize: 12, lineHeight: 15, letterSpacing: 0.2 },
   menu: {
     position: 'absolute',
     left: 0,

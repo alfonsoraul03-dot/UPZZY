@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   dot: { height: 6, borderRadius: 3 },
   pad: { paddingHorizontal: layout.gutter, paddingTop: space.xl, gap: space.xl },
   head: { gap: space.xs },
-  name: { fontFamily: fonts.bodyHeavy, fontSize: 36, lineHeight: 40, letterSpacing: -1 },
+  name: { fontFamily: fonts.bodyBold, fontSize: 32, lineHeight: 37, letterSpacing: -0.9 },
   option: { gap: space.md },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   chip: { borderWidth: 1.5, borderRadius: radius.pill, paddingHorizontal: space.lg, paddingVertical: space.sm, minWidth: 52, alignItems: 'center' },

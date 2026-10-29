@@ -2,8 +2,7 @@ import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
-import { Wordmark } from '@/components/brand/Wordmark';
-import { Button, Field, Screen, Text } from '@/components/ui';
+import { Button, Field, Hero, Lead, Onboarding, Text } from '@/components/ui';
 import { setAccess } from '@/hooks/useAccess';
 import { refreshConsents, useConsents } from '@/hooks/useConsents';
 import { useSession } from '@/hooks/useSession';
@@ -26,28 +25,27 @@ export default function AgeScreen() {
   if (ready && !userId) return <Redirect href="/sign-in" />;
   if (consents?.adult) return <Redirect href={consents.social_answered ? '/' : '/consent'} />;
 
-  const header = (
-    <View style={styles.header}>
-      <Wordmark />
-    </View>
-  );
-
   if (minor || consents?.under_18) {
     return (
-      <Screen header={header}>
-        <View style={styles.gap}>
-          <Text variant="heading">upzzy is {ADULT_AGE}+.</Text>
-          <Text color="textMuted">
-            if you&apos;re under {ADULT_AGE}, a parent or guardian can email us at {CONTACT_EMAIL} to give their consent. we&apos;ll let you
-            in once we have it.
-          </Text>
-        </View>
-        <Button
-          label="email upzzy"
-          onPress={() => Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('upzzy: consent for under 18')}`)}
-        />
-        <Button label="sign out" variant="outline" onPress={() => signOut()} />
-      </Screen>
+      <Onboarding
+        footer={
+          <>
+            <Button
+              label="email upzzy"
+              onPress={() => Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('upzzy: consent for under 18')}`)}
+            />
+            <Button label="sign out" variant="outline" onPress={() => signOut()} />
+          </>
+        }>
+        <Text variant="label" color="textMuted">
+          age check
+        </Text>
+        <Hero>upzzy is {ADULT_AGE}+.</Hero>
+        <Lead>
+          if you&apos;re under {ADULT_AGE}, a parent or guardian can email us at <Text variant="lead">{CONTACT_EMAIL}</Text> to give their
+          consent. we&apos;ll let you in once we have it.
+        </Lead>
+      </Onboarding>
     );
   }
 
@@ -77,29 +75,68 @@ export default function AgeScreen() {
   };
 
   return (
-    <Screen header={header} keyboardShouldPersistTaps="handled">
-      <View style={styles.gap}>
-        <Text variant="heading">how old are you?</Text>
-        <Text color="textMuted">upzzy is for people {ADULT_AGE} and over. we only keep whether you are, not your birthday.</Text>
-      </View>
+    <Onboarding footer={<Button label={busy ? 'checking…' : 'continue'} onPress={send} disabled={busy || !birth} />}>
+      <Text variant="label" color="textMuted">
+        age check
+      </Text>
+      <Hero>how old are you?</Hero>
+      <Lead>upzzy is for people {ADULT_AGE} and over. we only keep whether you are, not your birthday.</Lead>
       <View style={styles.row}>
-        <Field value={day} onChangeText={setDay} placeholder="dd" keyboardType="number-pad" maxLength={2} accessibilityLabel="day" style={styles.small} />
-        <Field value={month} onChangeText={setMonth} placeholder="mm" keyboardType="number-pad" maxLength={2} accessibilityLabel="month" style={styles.small} />
-        <Field value={year} onChangeText={setYear} placeholder="yyyy" keyboardType="number-pad" maxLength={4} accessibilityLabel="year" style={styles.big} />
+        <DatePart label="day" value={day} onChange={setDay} placeholder="dd" length={2} />
+        <DatePart label="month" value={month} onChange={setMonth} placeholder="mm" length={2} />
+        <DatePart label="year" value={year} onChange={setYear} placeholder="yyyy" length={4} wide />
       </View>
       {birth && ageOn(birth, new Date()) >= ADULT_AGE ? null : year.length === 4 && birth ? (
-        <Text color="textMuted">under {ADULT_AGE}? you&apos;ll need a parent or guardian&apos;s ok.</Text>
+        <Text variant="caption" color="textMuted">
+          under {ADULT_AGE}? you&apos;ll need a parent or guardian&apos;s ok.
+        </Text>
       ) : null}
-      <Button label={busy ? 'checking…' : 'continue'} onPress={send} disabled={busy || !birth} />
-      {error ? <Text color="textMuted">{error}</Text> : null}
-    </Screen>
+      {error ? (
+        <Text variant="caption" color="textMuted">
+          {error}
+        </Text>
+      ) : null}
+    </Onboarding>
+  );
+}
+
+/** One part of the birth date, with its name above it. */
+function DatePart({
+  label,
+  value,
+  onChange,
+  placeholder,
+  length,
+  wide,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  length: number;
+  wide?: boolean;
+}) {
+  return (
+    <View style={[styles.part, wide && styles.partWide]}>
+      <Text variant="label" color="textMuted">
+        {label}
+      </Text>
+      <Field
+        value={value}
+        onChangeText={onChange}
+        placeholder={placeholder}
+        keyboardType="number-pad"
+        maxLength={length}
+        accessibilityLabel={label}
+        style={styles.dateField}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { height: 56, alignItems: 'center', justifyContent: 'center' },
-  gap: { gap: space.sm },
-  row: { flexDirection: 'row', gap: space.md },
-  small: { flex: 1, textAlign: 'center' },
-  big: { flex: 1.6, textAlign: 'center' },
+  row: { flexDirection: 'row', gap: space.md, marginTop: space.sm },
+  part: { flex: 1, minWidth: 0, gap: space.xs },
+  partWide: { flex: 1.45 },
+  dateField: { width: '100%', textAlign: 'center', fontSize: 19, fontVariant: ['tabular-nums'] },
 });

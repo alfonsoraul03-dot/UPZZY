@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 
-import { fonts, radius, space, useTheme } from '@/theme';
+import { layout, radius, space, type as typeScale, useTheme } from '@/theme';
 
 import { Text } from './Text';
 
@@ -12,10 +12,16 @@ export type ButtonProps = Omit<PressableProps, 'children'> & {
   icon?: (color: string) => React.ReactNode;
 };
 
-/** Buttons use the main thread colour. Oops Orange is reserved for mistakes. */
+/**
+ * Solid: warm white fill, the one main action. Outline: a quiet dark fill
+ * with a hairline border, for the other choice. Disabled is its own grey
+ * state, not a faded copy. Oops Orange is reserved for mistakes.
+ */
 export function Button({ label, variant = 'solid', icon, disabled, style, ...rest }: ButtonProps) {
   const theme = useTheme();
   const solid = variant === 'solid';
+  const fill = disabled ? theme.disabled : solid ? theme.primary : theme.surface;
+  const ink = disabled ? theme.onDisabled : solid ? theme.onPrimary : theme.text;
 
   return (
     <Pressable
@@ -26,17 +32,19 @@ export function Button({ label, variant = 'solid', icon, disabled, style, ...res
       style={(state) => [
         styles.base,
         {
-          backgroundColor: solid ? theme.text : 'transparent',
-          borderColor: theme.text,
-          opacity: disabled ? 0.4 : state.pressed ? 0.75 : 1,
-          transform: [{ scale: state.pressed ? 0.98 : 1 }],
+          backgroundColor: fill,
+          borderColor: solid || disabled ? fill : theme.border,
+          opacity: state.pressed ? 0.86 : 1,
+          transform: [{ scale: state.pressed ? 0.985 : 1 }],
         },
         typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}>
       <View style={styles.row}>
-        {icon?.(solid ? theme.onText : theme.text)}
-        <Text style={[styles.label, { color: solid ? theme.onText : theme.text }]}>{label}</Text>
+        {icon?.(ink)}
+        <Text style={[typeScale.button, { color: ink }]} numberOfLines={1}>
+          {label}
+        </Text>
       </View>
     </Pressable>
   );
@@ -44,13 +52,12 @@ export function Button({ label, variant = 'solid', icon, disabled, style, ...res
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 54,
-    paddingHorizontal: space.xxl,
-    borderRadius: radius.pill,
-    borderWidth: 1.5,
+    minHeight: layout.controlHeight,
+    paddingHorizontal: space.xl,
+    borderRadius: radius.control,
+    borderWidth: StyleSheet.hairlineWidth * 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  label: { fontFamily: fonts.bodySemiBold, fontSize: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm, maxWidth: '100%' },
 });

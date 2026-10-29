@@ -8,11 +8,17 @@ const TEXT_PAIRS: [keyof ColorTokens, keyof ColorTokens][] = [
   ['textMuted', 'background'],
   ['textMuted', 'surface'],
   ['onText', 'text'],
+  ['onPrimary', 'primary'],
 ];
 // Oops Orange marks shapes and glyphs, never body text, so it needs 3:1.
 const GRAPHIC_PAIRS: [keyof ColorTokens, keyof ColorTokens][] = [
   ['oops', 'background'],
   ['oops', 'surface'],
+  // Hints in empty fields and the focused border only need to be seen.
+  ['placeholder', 'surface'],
+  ['focus', 'surface'],
+  // WCAG exempts inactive controls from the text minimum; still kept legible.
+  ['onDisabled', 'disabled'],
 ];
 
 describe.each(['light', 'dark'] as const)('%s theme', (scheme) => {

@@ -2,8 +2,7 @@ import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Wordmark } from '@/components/brand/Wordmark';
-import { Button, Screen, Text } from '@/components/ui';
+import { Button, Hero, Lead, Onboarding, Text } from '@/components/ui';
 import { refreshConsents, useConsents } from '@/hooks/useConsents';
 import { useSession } from '@/hooks/useSession';
 import { friendlyError, setSocialConsent } from '@/lib/social';
@@ -34,28 +33,33 @@ export default function ConsentScreen() {
   };
 
   return (
-    <Screen
-      header={
-        <View style={styles.header}>
-          <Wordmark />
-        </View>
+    <Onboarding
+      footer={
+        <>
+          {error ? (
+            <Text variant="caption" color="textMuted">
+              {error}
+            </Text>
+          ) : null}
+          <Button label="yes, you can share them" onPress={() => answer(true)} disabled={busy} />
+          <Button label="no, keep them in the app" variant="outline" onPress={() => answer(false)} disabled={busy} />
+        </>
       }>
-      <View style={styles.gap}>
-        <Text variant="heading">can we share your photos?</Text>
-        <Text color="textMuted">
+      <Text variant="label" color="textMuted">
+        your photos
+      </Text>
+      <Hero>can we share your photos?</Hero>
+      <View style={styles.paragraphs}>
+        <Lead>
           sometimes we post challenge photos on upzzy&apos;s social media, like instagram and tiktok. only photos our staff approved, and
           only if you say yes.
-        </Text>
-        <Text color="textMuted">it&apos;s up to you. it doesn&apos;t change anything in the app, and you can change your mind any time in settings.</Text>
+        </Lead>
+        <Lead>it&apos;s up to you. it doesn&apos;t change anything in the app, and you can change your mind any time in settings.</Lead>
       </View>
-      <Button label="yes, you can share them" onPress={() => answer(true)} disabled={busy} />
-      <Button label="no, keep them in the app" variant="outline" onPress={() => answer(false)} disabled={busy} />
-      {error ? <Text color="textMuted">{error}</Text> : null}
-    </Screen>
+    </Onboarding>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { height: 56, alignItems: 'center', justifyContent: 'center' },
-  gap: { gap: space.sm },
+  paragraphs: { gap: space.md },
 });

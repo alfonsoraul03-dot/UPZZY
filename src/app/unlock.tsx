@@ -2,13 +2,12 @@ import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Wordmark } from '@/components/brand/Wordmark';
-import { Button, Field, Screen, Text } from '@/components/ui';
+import { Button, Field, Hero, Lead, Onboarding, Text } from '@/components/ui';
 import { setAccess } from '@/hooks/useAccess';
 import { useConsents } from '@/hooks/useConsents';
 import { useSession } from '@/hooks/useSession';
 import { friendlyError, redeemCode, signOut, type RedeemResult } from '@/lib/social';
-import { space } from '@/theme';
+import { fonts, space, useTheme } from '@/theme';
 
 const PROBLEMS: Record<Exclude<RedeemResult, 'ok'>, string> = {
   unknown: "that code doesn't exist. check it again.",
@@ -19,6 +18,7 @@ const PROBLEMS: Record<Exclude<RedeemResult, 'ok'>, string> = {
 
 /** The door: upzzy is for people who bought a piece. The code comes in the package. */
 export default function UnlockScreen() {
+  const theme = useTheme();
   const { userId, ready } = useSession();
   const consents = useConsents(userId);
   const [code, setCode] = useState('');
@@ -49,42 +49,53 @@ export default function UnlockScreen() {
   if (consents && !consents.adult) return <Redirect href="/age" />;
 
   return (
-    <Screen
-      header={
-        <View style={styles.header}>
-          <Wordmark />
-        </View>
+    <Onboarding
+      footer={
+        <>
+          {!ready || !userId ? null : (
+            <>
+              {error ? (
+                <Text variant="caption" color="textMuted">
+                  {error}
+                </Text>
+              ) : null}
+              <Button label={busy ? 'checking…' : 'unlock'} onPress={unlock} disabled={busy || !enough} />
+            </>
+          )}
+          <View style={[styles.other, { borderTopColor: theme.border }]}>
+            <Text variant="caption" color="textMuted">
+              no piece yet?
+            </Text>
+            <Button label="shop drop 001" variant="outline" onPress={() => router.push('/drop')} />
+            {!ready || !userId ? null : (
+              <Button label="wrong account? sign out" variant="outline" onPress={() => signOut()} disabled={busy} />
+            )}
+          </View>
+        </>
       }>
-      <View style={styles.gap}>
-        <Text variant="heading">upzzy is for people who wear it.</Text>
-        <Text color="textMuted">every piece comes with a one-time code in the package. type it here to get in.</Text>
-      </View>
+      <Text variant="label" color="textMuted">
+        members only
+      </Text>
+      <Hero>upzzy is for people who wear it.</Hero>
+      <Lead>every piece comes with a one-time code in the package. type it here to get in.</Lead>
       {!ready || !userId ? null : (
-        <View style={styles.gap}>
-          <Field
-            value={code}
-            onChangeText={(v) => setCode(v.toUpperCase())}
-            placeholder="UPZ-XXXXX-XXXXX"
-            autoCapitalize="characters"
-            autoCorrect={false}
-            maxLength={20}
-            onSubmitEditing={() => enough && unlock()}
-            accessibilityLabel="code"
-          />
-          <Button label={busy ? 'checking…' : 'unlock'} onPress={unlock} disabled={busy || !enough} />
-          {error ? <Text color="textMuted">{error}</Text> : null}
-          <Button label="wrong account? sign out" variant="outline" onPress={() => signOut()} disabled={busy} />
-        </View>
+        <Field
+          value={code}
+          onChangeText={(v) => setCode(v.toUpperCase())}
+          placeholder="UPZ-XXXXX-XXXXX"
+          autoCapitalize="characters"
+          autoCorrect={false}
+          maxLength={20}
+          onSubmitEditing={() => enough && unlock()}
+          accessibilityLabel="code"
+          style={styles.code}
+        />
       )}
-      <View style={styles.gap}>
-        <Text color="textMuted">no piece yet?</Text>
-        <Button label="shop drop 001" variant="outline" onPress={() => router.push('/drop')} />
-      </View>
-    </Screen>
+    </Onboarding>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { height: 56, alignItems: 'center', justifyContent: 'center' },
-  gap: { gap: space.md },
+  code: { marginTop: space.sm, fontFamily: fonts.mono, fontSize: 18, letterSpacing: 1 },
+  other: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: space.md, paddingTop: space.lg, gap: space.md },
 });

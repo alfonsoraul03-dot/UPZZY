@@ -42,6 +42,16 @@ export type ColorTokens = {
   onPhoto: string;
   /** Soft shadow under white text drawn straight on a photo. */
   photoShadow: string;
+  /** Primary button fill, and the label on it. */
+  primary: string;
+  onPrimary: string;
+  /** Buttons that cannot be pressed yet: a quiet fill, not a faded copy. */
+  disabled: string;
+  onDisabled: string;
+  /** Hint text inside an empty field. */
+  placeholder: string;
+  /** Border of the field you are typing in. */
+  focus: string;
 };
 
 /** Backgrounds for the initial-letter avatars, picked by name. Black text sits on all of them. */
@@ -60,19 +70,32 @@ export const colors: Record<'light' | 'dark', ColorTokens> = {
     photoScrim: 'rgba(30, 29, 27, 0.7)',
     onPhoto: palette.chalk,
     photoShadow: 'rgba(0, 0, 0, 0.45)',
+    primary: palette.washedBlack,
+    onPrimary: palette.chalk,
+    disabled: '#DCD7CC',
+    onDisabled: '#6E685F',
+    placeholder: '#857F75',
+    focus: palette.washedBlack,
   },
   // The app is dark, like BeReal and TikTok: photos carry the colour.
+  // Warm black and warm white rather than pure, so it reads as a fashion label, not a terminal.
   dark: {
-    background: palette.black,
+    background: '#080808',
     surface: '#141414',
-    border: '#262626',
-    text: palette.white,
-    textMuted: '#8E8E8E',
+    border: '#292929',
+    text: '#F7F6F3',
+    textMuted: '#A6A39F',
     oops: palette.oops,
-    onText: palette.black,
-    photoScrim: 'rgba(0, 0, 0, 0.55)',
-    onPhoto: palette.white,
+    onText: '#101010',
+    photoScrim: 'rgba(0, 0, 0, 0.6)',
+    onPhoto: '#F7F6F3',
     photoShadow: 'rgba(0, 0, 0, 0.45)',
+    primary: '#F5F4F0',
+    onPrimary: '#101010',
+    disabled: '#343434',
+    onDisabled: '#898989',
+    placeholder: '#6F6C68',
+    focus: '#F7F6F3',
   },
 };
 
@@ -93,6 +116,8 @@ export const radius = {
   none: 0,
   sm: 2,
   md: 6,
+  /** Buttons and fields: rounded, not pills. */
+  control: 12,
   lg: 14,
   xl: 22,
   pill: 999,
@@ -111,22 +136,34 @@ export const fonts = {
   mono: 'JetBrainsMono_500Medium',
 } as const;
 
+/**
+ * One family, few weights: bold only for headlines, regular for reading.
+ * Sizes are for a ~390pt-wide phone; `hero` steps down on narrow screens (see Hero).
+ */
 export const type = {
   /** Big numbers: scores, streaks. */
   number: { fontFamily: fonts.display, fontSize: 64, lineHeight: 64, letterSpacing: -1 },
-  /** Big screen titles: "messages", "october". */
-  heading: { fontFamily: fonts.bodyHeavy, fontSize: 30, lineHeight: 34, letterSpacing: -0.8 },
-  title: { fontFamily: fonts.bodyHeavy, fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
-  body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 23 },
-  bodyStrong: { fontFamily: fonts.bodyBold, fontSize: 16, lineHeight: 23 },
-  caption: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
-  label: { fontFamily: fonts.bodySemiBold, fontSize: 12, lineHeight: 16, letterSpacing: 0.4 },
+  /** The one big line of an onboarding screen. */
+  hero: { fontFamily: fonts.bodyBold, fontSize: 36, lineHeight: 41, letterSpacing: -1.1 },
+  /** Screen titles: "not out yet.", "october". */
+  heading: { fontFamily: fonts.bodyBold, fontSize: 30, lineHeight: 35, letterSpacing: -0.8 },
+  title: { fontFamily: fonts.bodyBold, fontSize: 21, lineHeight: 27, letterSpacing: -0.4 },
+  /** Supporting paragraphs under a headline. */
+  lead: { fontFamily: fonts.body, fontSize: 17, lineHeight: 26, letterSpacing: -0.1 },
+  body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24 },
+  bodyStrong: { fontFamily: fonts.bodySemiBold, fontSize: 16, lineHeight: 24 },
+  /** Button labels. */
+  button: { fontFamily: fonts.bodySemiBold, fontSize: 17, lineHeight: 22, letterSpacing: -0.1 },
+  caption: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20 },
+  label: { fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18, letterSpacing: 0.1 },
 } as const;
 
 export type TypeVariant = keyof typeof type;
 
 export const layout = {
   gutter: space.xl,
+  /** Buttons and fields share one height, comfortably over the 44pt touch minimum. */
+  controlHeight: 54,
   maxContentWidth: 560,
   tabBarHeight: 62,
 } as const;

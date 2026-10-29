@@ -181,6 +181,6 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -3, marginTop: -space.md },
   cell: { width: '25%', padding: 3 },
   thumb: { width: '100%', aspectRatio: 3 / 4, borderRadius: radius.md + 4, overflow: 'hidden' },
-  day: { position: 'absolute', left: 6, bottom: 4, fontFamily: fonts.bodyHeavy, fontSize: 15, ...shadow },
+  day: { position: 'absolute', left: 6, bottom: 4, fontFamily: fonts.bodyBold, fontSize: 15, ...shadow },
   pts: { position: 'absolute', right: 6, top: 4, fontFamily: fonts.bodyBold, fontSize: 10, ...shadow },
 });

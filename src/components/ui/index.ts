@@ -7,3 +7,4 @@ export { Toggle } from './Toggle';
 export { Avatar } from './Avatar';
 export { Icon, type IconName } from './Icon';
 export { Shade } from './Shade';
+export { Hero, Lead, Onboarding } from './Onboarding';

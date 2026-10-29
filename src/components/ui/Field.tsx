@@ -1,26 +1,44 @@
-import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
+import { useState } from 'react';
+import { Platform, StyleSheet, TextInput, type TextInputProps, type TextStyle } from 'react-native';
 
-import { fonts, radius, space, useTheme } from '@/theme';
+import { fonts, layout, radius, space, useTheme } from '@/theme';
 
-/** A single quiet text input. */
-export function Field({ style, ...rest }: TextInputProps) {
+/** A single quiet text input. The border lights up while you type in it. */
+export function Field({ style, onFocus, onBlur, ...rest }: TextInputProps) {
   const theme = useTheme();
+  const [focused, setFocused] = useState(false);
   return (
     <TextInput
-      placeholderTextColor={theme.textMuted}
+      placeholderTextColor={theme.placeholder}
       selectionColor={theme.text}
-      style={[styles.input, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface }, style]}
+      cursorColor={theme.text}
+      onFocus={(e) => {
+        setFocused(true);
+        onFocus?.(e);
+      }}
+      onBlur={(e) => {
+        setFocused(false);
+        onBlur?.(e);
+      }}
+      style={[styles.input, { color: theme.text, borderColor: focused ? theme.focus : theme.border, backgroundColor: theme.surface }, style]}
       {...rest}
     />
   );
 }
 
+// On the web the browser draws its own focus ring; the border already shows focus.
+const noWebOutline = (Platform.OS === 'web' ? { outlineStyle: 'none' } : {}) as TextStyle;
+
 const styles = StyleSheet.create({
   input: {
-    minHeight: 54,
-    borderWidth: 1.5,
-    borderRadius: radius.lg,
+    ...noWebOutline,
+    minHeight: layout.controlHeight,
+    // Lets fields share a row without pushing each other off screen.
+    minWidth: 0,
+    borderWidth: 1,
+    borderRadius: radius.control,
     paddingHorizontal: space.lg,
+    paddingVertical: space.md,
     fontFamily: fonts.body,
     fontSize: 17,
   },

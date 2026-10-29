@@ -10,7 +10,9 @@ UPZZY viene de "oopsie". Todo es tranquilo, limpio y mínimo, con UN error delib
 - **Un solo gesto por pantalla:** la Z que se cae (slip), el contorno movido (misregistration), la forma fuera de línea, la letra al revés (wrong side).
 - **Texto:** minúsculas, corto y seco. "oops.", "posted. no undo.", "not out yet.", "be quick."
 - **Estilo de la app:** oscura, como BeReal y TikTok, para que las fotos pongan el color. Home tipo TikTok (foto a pantalla completa, botones a la derecha), perfil y ranking tipo BeReal (tarjetas redondeadas), chats tipo Instagram (burbujas redondas).
-- **Tipografía:** Archivo Black en mayúsculas solo para el logo. Plus Jakarta Sans para todo lo demás, en negrita gruesa (800) para títulos y nombres.
+- **Tipografía:** Archivo Black en mayúsculas solo para el logo. Plus Jakarta Sans para todo lo demás: negrita (700) solo en titulares, semibold (600) en botones y nombres, regular (400) para leer. Escala en `type` de `tokens.ts`: hero 36, heading 30, title 21, lead 17, body 16, caption 14, label 13.
+- **Botones y campos:** misma altura (54), esquinas de 12, nunca píldoras. Principal: blanco cálido con texto casi negro. Secundario: relleno oscuro con borde fino. Desactivado: gris propio (#343434 / #898989), no una copia transparente. El campo activo enciende su borde.
+- **Pasos antes de la app (edad, fotos, código):** componente `Onboarding`: logo arriba, titular y explicación juntos, acciones abajo donde llega el pulgar.
 - **Icono de la app:** fondo negro, círculo crema y aro Oops Orange desplazado (`assets/`). En la pantalla de inicio, la misma marca sobre negro.
 - **Iconos:** de línea, del color del texto (`src/components/ui/Icon.tsx`). Avatares: círculo con la inicial mientras no haya foto de perfil.
 - **Formas:** círculos, cuadrados, barras, puntos y letras sueltas. Sin ilustraciones ni texturas. El único degradado es la sombra negra sobre las fotos para que se lea el texto.
@@ -22,9 +24,12 @@ La app usa ahora siempre el tema oscuro. El claro se guarda en `tokens.ts` por s
 
 | Token | Oscuro (el que se usa) | Claro (guardado) |
 | --- | --- | --- |
-| Fondo | Negro `#000000` | Chalk `#F2F0EA` |
+| Fondo | Negro cálido `#080808` | Chalk `#F2F0EA` |
 | Tarjetas | `#141414` | `#FAF8F3` |
-| Hilo principal (texto, botones) | Blanco `#FFFFFF` | Washed Black `#2E2C2A` |
+| Hilo principal (texto) | Blanco cálido `#F7F6F3` | Washed Black `#2E2C2A` |
+| Texto secundario | `#A6A39F` | Stone Grey `#6B665E` |
+| Bordes | `#292929` | Oatmeal `#D9CDB8` |
+| Botón principal | `#F5F4F0` con texto `#101010` | Washed Black con texto Chalk |
 | Oops | `#E4572E` | `#E4572E` |
 
 El contraste de todos los pares lo comprueba `src/__tests__/contrast.test.ts`.

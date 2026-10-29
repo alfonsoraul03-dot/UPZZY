@@ -24,7 +24,7 @@ export function Avatar({ name, size = 40, ring }: { name: string | null; size?: 
         },
       ]}
       accessible={false}>
-      <Text style={{ fontFamily: fonts.bodyHeavy, fontSize: size * 0.42, lineHeight: size * 0.52, color: real ? palette.black : theme.textMuted }}>
+      <Text style={{ fontFamily: fonts.bodyBold, fontSize: size * 0.42, lineHeight: size * 0.52, color: real ? palette.black : theme.textMuted }}>
         {(real ?? '?').charAt(0).toUpperCase()}
       </Text>
     </View>
